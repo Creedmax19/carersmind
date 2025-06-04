@@ -1,0 +1,25 @@
+{
+  "name": "carers-care-cic",
+  "version": "1.0.0",
+  "description": "Carer's Care CIC - Supporting Carers in the Community",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "live-server public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/carers-care-cic.git"
+  },
+  "keywords": [
+    "carers",
+    "community",
+    "support",
+    "healthcare"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
