@@ -339,7 +339,7 @@ section {
 }
 
 /* Donation */
-.donation {
+/* .donation {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: white;
     text-align: center;
@@ -414,8 +414,47 @@ section {
 .tier-features li i {
     margin-right: 10px;
     color: var(--secondary);
+} */
+.donation-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
+.impact-statement {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.impact-features {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.impact-features li {
+    margin: 15px 0;
+    font-size: 1.1rem;
+}
+
+.fa-heart {
+    color: #ff6b6b;
+    margin-right: 10px;
+}
+
+.btn-donate {
+    background: #2bb460;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-donate:hover {
+    background: #1c7940;
+    transform: translateY(-3px);
+}
 /* Footer */
 footer {
     background: var(--dark);
