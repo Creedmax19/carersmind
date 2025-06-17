@@ -1,10 +1,10 @@
 {
-  "name": "carers-care-cic",
+  "name": "carers-mind",
   "version": "1.0.0",
-  "description": "Carer's Care CIC - Supporting Carers in the Community",
-  "main": "public/index.html",
+  "description": "CarersMind - Supporting Carers in the Community",
+  "main": "docs/index.html",
   "scripts": {
-    "start": "live-server public",
+    "start": "live-server docs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

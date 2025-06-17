@@ -2,7 +2,7 @@
   # No build command needed for static site
   command = ""
   # Publish directory - this is where your built files should be
-  publish = "public"
+  publish = "docs"
 
 [build.environment]
   # Set the Node.js version

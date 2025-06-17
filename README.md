@@ -1,6 +1,6 @@
-# Carer's Care CIC
+# CarersMind
 
-A website for Carer's Care CIC, supporting carers in the community.
+A website for CarersMind, supporting carers in the community.
 
 ## Features
 
