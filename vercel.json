@@ -7,9 +7,8 @@
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/docs/index.html"
-    }
+    { "src": "/css/(.*)", "dest": "/docs/css/$1" },
+    { "src": "/js/(.*)", "dest": "/docs/js/$1" },
+    { "src": "/(.*)", "dest": "/docs/$1" }
   ]
 }
