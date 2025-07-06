@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Blog Post - Admin - Carer's Care CIC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-dashboard">
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="admin-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dashboard.html#posts" data-section="posts">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Blog Posts</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="#" data-section="new-post">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Post</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dashboard.html#settings" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-menu">
+                    <span class="welcome">Welcome, <span id="adminName">Admin</span></span>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- New/Edit Post -->
+                <section id="new-post-section" class="section active">
+                    <div class="section-header">
+                        <h2 id="postFormTitle">New Blog Post</h2>
+                        <button type="button" class="btn-secondary" id="saveDraftBtn">
+                            <i class="far fa-save"></i> Save Draft
+                        </button>
+                        <button type="button" class="btn-primary" id="publishBtn">
+                            <i class="fas fa-paper-plane"></i> Publish
+                        </button>
+                    </div>
+                    <form id="postForm" class="post-form">
+                        <div class="form-group">
+                            <input type="text" id="postTitle" placeholder="Post Title" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="postSlug" placeholder="URL Slug (auto-generated)" readonly>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="postExcerpt" placeholder="Short excerpt (max 160 characters)" maxlength="160"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div id="editor"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Featured Image</label>
+                                <div class="image-upload" id="featuredImageUpload">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload or drag and drop</p>
+                                    <input type="file" id="featuredImage" accept="image/*">
+                                </div>
+                                <div class="image-preview" id="imagePreview"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Categories</label>
+                                <div class="categories-container">
+                                    <div class="categories-list" id="categoriesList">
+                                        <!-- Categories will be added here -->
+                                    </div>
+                                    <div class="add-category">
+                                        <input type="text" id="newCategory" placeholder="Add category">
+                                        <button type="button" id="addCategoryBtn">+</button>
+                                    </div>
+                                </div>
+                                <label>Tags</label>
+                                <div class="tags-container">
+                                    <div class="tags-list" id="tagsList">
+                                        <!-- Tags will be added here -->
+                                    </div>
+                                    <input type="text" id="newTag" placeholder="Add tags (comma separated)">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="featuredPost">
+                                    <label for="featuredPost">Featured Post</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/admin-auth.js"></script>
+</body>
+</html>

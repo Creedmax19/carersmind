@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://carersmind.co.uk/sitemap.xml
+
+# Allow crawling of important directories
+Allow: /blog/
+Allow: /services/
+Allow: /store/
+
+# Disallow specific directories
+Disallow: /admin/
+Disallow: /docs/
+
+# Allow all images to be crawled
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+
+# Crawl-delay in seconds
+Crawl-delay: 10
+
+# Google News
+User-agent: Googlebot-News
+Allow: /
+
+# Bingbot
+User-agent: bingbot
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /

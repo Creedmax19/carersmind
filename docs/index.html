@@ -4,16 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CarersMind | Supporting Those Who Care</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="CarersMind - Supporting carers in their journey. We provide resources, support, and community for caregivers.">
+    <meta name="keywords" content="carers, caregiving, support, community, resources, mental health, well-being">
+    <meta name="author" content="CarersMind CIC">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carersmind.com/">
+    <meta property="og:title" content="CarersMind | Supporting Those Who Care">
+    <meta property="og:description" content="CarersMind - Supporting carers in their journey. We provide resources, support, and community for caregivers.">
+    <meta property="og:image" content="https://carersmind.com/images/logo-removebg-preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://carersmind.com/">
+    <meta property="twitter:title" content="CarersMind | Supporting Those Who Care">
+    <meta property="twitter:description" content="CarersMind - Supporting carers in their journey. We provide resources, support, and community for caregivers.">
+    <meta property="twitter:image" content="https://carersmind.com/images/logo-removebg-preview.png">
+    
+    <!-- Favicon and Logo -->
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" async>
+        var tlJsHost = "https://secure.trust-provider.com/";
+        document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
 </head>
 <body>
     <!-- Floating Navigation -->
     <nav class="floating-nav">
         <div class="container">
-            <div class="nav-logo">CarersMind</div>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <div class="nav-logo">
+                <img src="images/logo-removebg-preview.png" alt="Carers' Mind Logo" class="nav-logo-img" />
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
                 <i class="fas fa-bars"></i>
             </button>
             <ul class="nav-links" id="navLinks">
@@ -22,7 +56,10 @@
                 <li><a href="#mission">Our Mission</a></li>
                 <li><a href="#services">What We Do</a></li>
                 <li><a href="#donate">Donate</a></li>
+                <li><a href="#store">Store</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li class="get-help-link"><a href="get-help.html" class="btn-help"><i class="fas fa-hands-helping"></i> Get Help</a></li>
+                <li class="admin-link"><a href="admin/login.html"><i class="fas fa-lock"></i> Admin</a></li>
             </ul>
         </div>
     </nav>
@@ -336,7 +373,7 @@
                     </div>
                     
                     <!-- View More Button -->
-                    <div class="text-center" style="margin-top: 40px;">
+                    <div class="text-center view-more-btn-container">
                         <a href="#" class="btn">View More Photos</a>
                     </div>
                 </div>
@@ -386,6 +423,34 @@
             </div>
         </section>
 
+    <!-- Store Section -->
+    <section class="store-section" id="store">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Store</h2>
+                <p>Support our cause by purchasing our merchandise</p>
+            </div>
+            <div class="products-grid">
+                <!-- Product items will be dynamically loaded here -->
+            </div>
+            <div id="cart" class="shopping-cart">
+                <h3><i class="fas fa-shopping-cart"></i> Cart <span id="cart-count">0</span></h3>
+                <div id="cart-items"></div>
+                <div class="cart-total">
+                    Total: £<span id="cart-total">0.00</span>
+                </div>
+                <button id="checkout-button" class="btn">Proceed to Checkout</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stripe Elements will be inserted here -->
+    <div id="card-element" class="stripe-element">
+        <!-- A Stripe Element will be inserted here. -->
+    </div>
+    <!-- Used to display form errors. -->
+    <div id="card-errors" role="alert"></div>
+
     <!-- Footer -->
     <footer id="contact">
         <div class="container">
@@ -394,10 +459,9 @@
                     <h3>CarersMind</h3>
                     <p>Supporting and empowering carers across the UK through mental health resources, community, and advocacy.</p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/carers_mental_health_support?igsh=dXk4ZHVyNWY2bHZn" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram"><i class="fab fa-instagram" title="Instagram"></i></a>
+                        <a href="https://x.com/ndamsamue7070?s=11" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter"><i class="fab fa-twitter" title="Twitter"></i></a>
+                        <a href="https://www.tiktok.com/@carersmind.uk?_t=ZN-8xHRzW48bFW&_r=1" target="_blank" rel="noopener noreferrer" aria-label="Follow us on TikTok"><i class="fab fa-tiktok" title="TikTok"></i></a>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -440,6 +504,15 @@
     </footer>
 
     <script src="js/script.js"></script>
+    <script src="js/store.js"></script>
+    <!-- Load Stripe.js and Elements -->
+    <script src="https://js.stripe.com/v3/"></script>
     <script src="js/gallery.js"></script>
+    <script language="JavaScript" type="text/javascript">
+        TrustLogo("https://www.trustlogo.com/images/install/instantssl_trust_seal_md_159x42.png", "SC7", "none");
+        </script>
+        <a href="https://www.instantssl.com/ssl.html" id="comodoTL">Instant SSL</a>
 </body>
-</html>
+</html><div id="trustlogo" title="Click to Verify">
+    <a href="https://www.positivessl.com/" id="comodoTL2">SSL Certificate</a>
+</div>
