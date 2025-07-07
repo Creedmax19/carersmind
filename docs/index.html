@@ -35,7 +35,6 @@
         var tlJsHost = "https://secure.trust-provider.com/";
         document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
     </script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -503,11 +502,15 @@
         </div>
     </footer>
 
+    <!-- Main Scripts -->
     <script src="/js/script.js"></script>
     <script src="/js/store.js"></script>
-    <!-- Load Stripe.js and Elements -->
+    <!-- Stripe Integration -->
     <script src="https://js.stripe.com/v3/"></script>
     <script src="/js/gallery.js"></script>
+    <!-- Firebase Integration -->
+    <script src="/js/firebase-config.js"></script>
+    <script src="/js/firebase-auth.js"></script>
     <script language="JavaScript" type="text/javascript">
         TrustLogo("https://www.trustlogo.com/images/install/instantssl_trust_seal_md_159x42.png", "SC7", "none");
         </script>
