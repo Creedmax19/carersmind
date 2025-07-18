@@ -3,10 +3,10 @@ console.log('Store script loaded');
 const products = [
     {
         id: 1,
-        name: "Custom Made Cup",
+        name: "Custom Made Mug",
         price: 14.99,
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
-        description: "Custom made ceramic mug that can be personalized. Perfect for your favorite beverage.",
+        image: "./images/mug.jpg",
+        description: "High-quality ceramic mug featuring the Carer's Care logo. Perfect for your favorite hot or cold beverages.",
         category: "mugs",
         stock: 30,
         features: ["Dishwasher safe", "Microwave safe", "BPA free"]
@@ -15,21 +15,32 @@ const products = [
         id: 2,
         name: "Carer's Care T-Shirt",
         price: 24.99,
-        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
-        description: "Premium cotton t-shirt with 'Carer's Care' logo. Available in sizes S-XXL.",
+        image: "./images/t-shirt.jpg",
+        description: "Comfortable cotton t-shirt with the Carer's Care logo. Available in sizes S-XXL.",
         category: "t-shirts",
         stock: 50,
         colors: ["Black", "White", "Navy"]
     },
     {
         id: 3,
-        name: "Custom Made Cap",
+        name: "Carer's Care Cap",
         price: 19.99,
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
-        description: "Custom made cap with embroidered design. Adjustable fit for maximum comfort.",
+        image: "./images/cap.jpg",
+        description: "Stylish cap featuring the Carer's Care logo. Adjustable fit for maximum comfort.",
         category: "caps",
         stock: 45,
         features: ["100% cotton", "Adjustable strap", "Embroidered design"]
+    },
+    {
+        id: 4,
+        name: "Awareness Wristband",
+        price: 9.99,
+        image: "./images/wristband.jpg",
+        description: "Show your support with our comfortable silicone awareness wristband. One size fits all.",
+        category: "accessories",
+        stock: 100,
+        colors: ["Blue", "White", "Black"],
+        features: ["Silicone material", "Waterproof", "Adjustable fit"]
     }
 ];
 
@@ -86,6 +97,12 @@ function setupEventListeners() {
             const button = e.target.classList.contains('add-to-cart') ? e.target : e.target.closest('.add-to-cart');
             const productId = parseInt(button.getAttribute('data-id'));
             addToCart(productId);
+        }
+        
+        // Checkout button click
+        if (e.target.id === 'checkout-button' || e.target.closest('#checkout-button')) {
+            e.preventDefault();
+            checkout();
         }
 
         // Remove from cart button click
@@ -254,17 +271,19 @@ function loadCart() {
 // Handle checkout process
 function checkout() {
     if (cart.length === 0) {
-        showNotification('Your cart is empty!', 'error');
+        showNotification('Your cart is empty. Add some items first!', 'error');
         return;
     }
 
-    // In a real app, you would redirect to a checkout page or show a checkout form
-    showNotification('Proceeding to checkout...', 'info');
+    // Prepare cart data for URL parameters
+    const cartData = JSON.stringify(cart);
+    const encodedCart = encodeURIComponent(cartData);
     
-    // For demo purposes, we'll just show an alert
-    setTimeout(() => {
-        alert('Checkout would be processed here with a payment gateway like Stripe.');
-    }, 500);
+    // Redirect to checkout page with cart data
+    // Checkout is currently unavailable
+    alert('Checkout functionality is coming soon! Please check back later.');
+    // Keep the user on the cart page
+    return false;
 }
 
 // Show notification to user

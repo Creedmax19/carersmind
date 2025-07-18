@@ -186,7 +186,7 @@
                                 <div class="image-upload" id="featuredImageUpload">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <p>Click to upload or drag and drop</p>
-                                    <input type="file" id="featuredImage" accept="image/*">
+                                    <input type="file" id="featuredImage" accept="image/*" aria-label="Upload featured image">
                                 </div>
                                 <div class="image-preview" id="imagePreview"></div>
                             </div>
@@ -232,16 +232,16 @@
                                 <h3>General Settings</h3>
                                 <form id="generalSettingsForm">
                                     <div class="form-group">
-                                        <label>Site Title</label>
-                                        <input type="text" id="siteTitle" value="Carer's Care CIC">
+                                        <label for="siteTitle">Site Title</label>
+                                        <input type="text" id="siteTitle" value="Carer's Care CIC" aria-label="Site title">
                                     </div>
                                     <div class="form-group">
-                                        <label>Site Description</label>
-                                        <textarea id="siteDescription">Supporting carers in our community</textarea>
+                                        <label for="siteDescription">Site Description</label>
+                                        <textarea id="siteDescription" aria-label="Site description">Supporting carers in our community</textarea>
                                     </div>
                                     <div class="form-group">
-                                        <label>Posts per page</label>
-                                        <input type="number" id="postsPerPage" value="10" min="1">
+                                        <label for="postsPerPage">Posts per page</label>
+                                        <input type="number" id="postsPerPage" value="10" min="1" aria-label="Number of posts to display per page">
                                     </div>
                                     <button type="submit" class="btn-primary">Save Changes</button>
                                 </form>
@@ -279,7 +279,7 @@
                 <div class="media-upload-area">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <p>Drag files here or click to upload</p>
-                    <input type="file" id="mediaUpload" multiple>
+                    <input type="file" id="mediaUpload" multiple aria-label="Upload media files" title="Click or drag to upload media files">
                 </div>
                 <div class="media-grid" id="mediaGrid">
                     <!-- Media items will be loaded here -->
