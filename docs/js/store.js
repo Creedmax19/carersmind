@@ -4,43 +4,65 @@ const products = [
     {
         id: 1,
         name: "Custom Made Mug",
-        price: 14.99,
+        price: 12.99,
+        originalPrice: 16.99,
         image: "./images/mug.jpg",
-        description: "High-quality ceramic mug featuring the Carer's Care logo. Perfect for your favorite hot or cold beverages.",
+        description: "Sip with Purpose – Fuel the Carers' Movement. This isn't just a mug—it's a daily act of solidarity. Made from premium ceramic, it features the CarersMind logo as a badge of honor for those who care tirelessly.",
         category: "mugs",
         stock: 30,
-        features: ["Dishwasher safe", "Microwave safe", "BPA free"]
+        features: ["Holds 350ml of tea, coffee, or resilience", "Dishwasher-safe (because you've got enough to wash)", "Every purchase funds 30 mins of peer support for unpaid carers"],
+        specialOffer: "Limited Offer: First 50 buyers get a FREE self-care guide (PDF)"
     },
     {
         id: 2,
         name: "Carer's Care T-Shirt",
-        price: 24.99,
+        price: 19.99,
+        bundlePrice: 35.00, // for 2
         image: "./images/t-shirt.jpg",
-        description: "Comfortable cotton t-shirt with the Carer's Care logo. Available in sizes S-XXL.",
+        description: "Wear Your Heart (And Your Impact). Super-soft 100% cotton tee with the CarersMind logo—because carers deserve comfort on and off duty.",
         category: "t-shirts",
         stock: 50,
-        colors: ["Black", "White", "Navy"]
+        colors: ["Black", "White", "Navy"],
+        features: ["Unisex fit (S-XXL) for all body types", "Ethically printed in the UK", "£5 from each sale sponsors mental health workshops"],
+        personalization: "I Am a Carer Edition: Add your name/care role (+£3.50)"
     },
     {
         id: 3,
         name: "Carer's Care Cap",
-        price: 19.99,
+        price: 16.99,
+        originalPrice: 22.00,
+        bundlePrice: 45.00, // for 3
         image: "./images/cap.jpg",
-        description: "Stylish cap featuring the Carer's Care logo. Adjustable fit for maximum comfort.",
+        description: "Shade Your Eyes, Not Your Light. A breathable, adjustable cap to shield you from the sun—and the world's indifference to carers' struggles.",
         category: "caps",
-        stock: 45,
-        features: ["100% cotton", "Adjustable strap", "Embroidered design"]
+        stock: 12, // Only 12 left!
+        features: ["One-size-fits-most (no awkward sizing)", "UV protection for those long shifts", "Pack of 3 for £45"],
+        specialOffer: "Pair It With: Our mug for a 'Shift Survival Kit' (£25)"
     },
     {
         id: 4,
-        name: "Awareness Wristband",
-        price: 9.99,
+        name: "CarersMind Wristband",
+        price: 4.99,
+        bundlePrice: 20.00, // for 5
         image: "./images/wristband.jpg",
-        description: "Show your support with our comfortable silicone awareness wristband. One size fits all.",
+        description: "Silent Signal of Support. A lightweight, waterproof wristband to remind carers they're seen—and remind the world to step up.",
         category: "accessories",
         stock: 100,
         colors: ["Blue", "White", "Black"],
-        features: ["Silicone material", "Waterproof", "Adjustable fit"]
+        features: ["'Care for the Carer' embossed text", "100% silicone (hypoallergenic)", "Buy 1 = Donate 1 to a carer in crisis"],
+        specialOffer: "Launch Deal: First 100 orders get a free sticker pack"
+    },
+    {
+        id: 5,
+        name: "Carer's Comfort Kit",
+        price: 39.99,
+        originalPrice: 54.96,
+        image: "./images/comfort-kit.jpg",
+        description: "Bundle Deal – Because caring for others starts with caring for YOU.",
+        category: "bundles",
+        stock: 25,
+        includes: ["1 Mug", "1 T-Shirt", "1 Wristband", "BONUS: Printable 'Mental Health Check-In' guide"],
+        features: ["Save 27% off individual prices", "Perfect gift for carers", "Supports the CarersMind mission"]
     }
 ];
 
@@ -67,26 +89,119 @@ function renderProducts() {
     const productsGrid = document.querySelector('.products-grid');
     if (!productsGrid) return;
 
-    productsGrid.innerHTML = products.map(product => `
+    productsGrid.innerHTML = products.map(product => {
+        // Calculate discount percentage if there's an original price
+        const discount = product.originalPrice 
+            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+            : 0;
+            
+        // Stock status
+        const stockStatus = product.stock === 0 
+            ? 'out-of-stock' 
+            : product.stock <= 10 
+                ? 'low-stock' 
+                : 'in-stock';
+        
+        // Stock message
+        const stockMessage = product.stock === 0
+            ? 'Out of Stock'
+            : product.stock <= 10
+                ? `Only ${product.stock} Left!`
+                : 'In Stock';
+                
+        // Stock icon
+        const stockIcon = product.stock === 0
+            ? 'fa-times-circle'
+            : product.stock <= 10
+                ? 'fa-exclamation-circle'
+                : 'fa-check-circle';
+        
+        return `
         <div class="product-card" data-id="${product.id}">
+            ${discount > 0 ? `<div class="product-ribbon">${discount}% OFF</div>` : ''}
+            
             <div class="product-image-container">
                 <img 
                     src="${product.image}" 
                     alt="${product.name}"
-                    onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Image+Not+Found';"
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/600x600?text=Image+Not+Found';"
                     loading="lazy"
+                    draggable="false"
                 >
             </div>
+            
             <div class="product-details">
+                <div class="stock-indicator ${stockStatus}">
+                    <i class="fas ${stockIcon}"></i> ${stockMessage}
+                </div>
+                
                 <h3>${product.name}</h3>
                 <p>${product.description}</p>
-                <div class="product-price">£${product.price.toFixed(2)}</div>
-                <button class="add-to-cart" data-id="${product.id}">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
+                
+                ${product.features && product.features.length > 0 ? `
+                    <div class="product-features">
+                        <ul>${product.features.map(feature => `
+                            <li><i class="fas fa-check"></i> ${feature}</li>`).join('')}
+                        </ul>
+                    </div>` : ''
+                }
+                
+                ${product.includes ? `
+                    <div class="bundle-includes">
+                        <strong>This Bundle Includes:</strong>
+                        <ul>${product.includes.map(item => `
+                            <li>${item}</li>`).join('')}
+                        </ul>
+                    </div>` : ''
+                }
+                
+                <div class="product-price-container">
+                    <span class="product-price">£${product.price.toFixed(2)}</span>
+                    ${product.originalPrice ? `
+                        <span class="original-price">£${product.originalPrice.toFixed(2)}</span>
+                        <span class="price-savings">Save £${(product.originalPrice - product.price).toFixed(2)}</span>` : ''
+                    }
+                    
+                    ${product.bundlePrice ? `
+                        <div class="bundle-offer">
+                            <i class="fas fa-tags"></i>
+                            <span>${product.id === 4 ? '5' : product.id === 3 ? '3' : '2'} for £${product.bundlePrice.toFixed(2)} (Save £${(product.price * (product.id === 4 ? 5 : product.id === 3 ? 3 : 2) - product.bundlePrice).toFixed(2)})</span>
+                        </div>` : ''
+                    }
+                </div>
+                
+                ${product.specialOffer ? `
+                    <div class="special-offer">
+                        <i class="fas fa-gift"></i>
+                        <span>${product.specialOffer}</span>
+                    </div>` : ''
+                }
+                
+                ${product.personalization ? `
+                    <div class="personalization">
+                        <i class="fas fa-pen"></i>
+                        <span>${product.personalization}</span>
+                    </div>` : ''
+                }
+                
+                <button 
+                    class="add-to-cart ${product.stock === 0 ? 'disabled' : ''}" 
+                    data-id="${product.id}" 
+                    ${product.stock === 0 ? 'disabled' : ''}
+                >
+                    <i class="fas ${product.stock === 0 ? 'fa-times' : 'fa-shopping-cart'}"></i>
+                    ${product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                 </button>
+                
+                ${product.stock > 0 ? `
+                    <div class="shipping-note">
+                        <i class="fas fa-truck"></i>
+                        <span>FREE UK shipping on orders over £30</span>
+                    </div>` : ''
+                }
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 // Set up event listeners
