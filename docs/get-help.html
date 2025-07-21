@@ -5,67 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Help - Carer's Mind</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            padding: 2rem 1rem;
+        }
+        
         .help-container {
             max-width: 900px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            padding: 0;
         }
-        .help-section {
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background-color: var(--primary-light);
+            transform: translateX(-4px);
+        }
+        
+        .page-header {
             margin-bottom: 2.5rem;
-            padding: 1.5rem;
-            border-radius: 8px;
-            background: #f9f9f9;
         }
-        .help-section h2 {
-            color: #2c3e50;
+        
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
             margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .page-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 70ch;
+        }
+        
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .help-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .help-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .help-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--text);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.75rem;
         }
+        
+        .help-section h2 i {
+            font-size: 1.5rem;
+            width: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .help-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--text);
+        }
+        
         .help-section ul {
-            padding-left: 1.5rem;
+            list-style: none;
             margin: 1rem 0;
         }
+        
         .help-section li {
+            position: relative;
+            padding-left: 1.5rem;
             margin-bottom: 0.75rem;
-            line-height: 1.6;
+            color: var(--text);
         }
+        
+        .help-section li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .help-section p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+        
         .emergency {
-            background-color: #fff8f8;
-            border-left: 4px solid #e74c3c;
+            border-left: 4px solid var(--danger);
+            background-color: #fef2f2;
         }
+        
+        .emergency h2 {
+            color: var(--danger);
+        }
+        
         .contact-info {
-            background-color: #f0f8ff;
-            text-align: center;
+            background-color: var(--primary-light);
             padding: 2rem;
-            border-radius: 8px;
-            margin-top: 2rem;
+            border-radius: 12px;
+            margin-top: 2.5rem;
+            text-align: center;
         }
+        
+        .contact-info h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
         .contact-info a {
-            color: #3498db;
+            color: var(--primary);
+            font-weight: 500;
             text-decoration: none;
+            transition: all 0.2s ease;
         }
+        
         .contact-info a:hover {
             text-decoration: underline;
+            color: #4338ca;
         }
-        .back-button {
-            display: inline-block;
-            margin-bottom: 1.5rem;
-            padding: 0.5rem 1rem;
-            background-color: #3498db;
-            color: white;
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
             text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
         }
-        .back-button:hover {
-            background-color: #2980b9;
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+            
+            .help-section {
+                padding: 1.5rem;
+            }
+            
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
         }
     </style>
 </head>
@@ -75,65 +227,80 @@
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
         
-        <h1>🌿 CarersMind – Mental Health Resources</h1>
+        <header class="page-header">
+            <h1>Support & Resources</h1>
+            <p>Find help, support, and resources to support your mental health and wellbeing journey.</p>
+        </header>
         
-        <div class="help-section">
-            <h2>🟢 1. Managing Stress and Burnout</h2>
-            <h3>Quick Tips to Cope:</h3>
-            <ul>
-                <li><strong>Take micro-breaks:</strong> Even 5 minutes of deep breathing or stretching can reset your nervous system.</li>
-                <li><strong>Set boundaries:</strong> It's okay to say no when you feel overwhelmed.</li>
-                <li><strong>Talk it out:</strong> Sharing your feelings with someone you trust often brings relief.</li>
-                <li><strong>Write things down:</strong> Keeping a simple journal can help you process difficult days.</li>
-            </ul>
-            <p><strong>CarersMind Support:</strong><br>
-            Join our free peer support group every 2nd and 4th Thursday to connect with others who understand.</p>
-        </div>
+        <div class="help-grid">
+            <section class="help-section">
+                <h2><i class="fas fa-heart"></i> Managing Stress & Burnout</h2>
+                <p>Practical strategies to help you cope with the challenges of caregiving while maintaining your own wellbeing.</p>
+                
+                <h3>Quick Tips to Cope:</h3>
+                <ul>
+                    <li><strong>Take micro-breaks:</strong> Even 5 minutes of deep breathing or stretching can reset your nervous system.</li>
+                    <li><strong>Set boundaries:</strong> It's okay to say no when you feel overwhelmed.</li>
+                    <li><strong>Talk it out:</strong> Sharing your feelings with someone you trust often brings relief.</li>
+                    <li><strong>Write things down:</strong> Keeping a simple journal can help you process difficult days.</li>
+                </ul>
+                
+                <div style="margin-top: 1.5rem;">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Join Support Group
+                    </a>
+                </div>
+            </section>
 
-        <div class="help-section emergency">
-            <h2>🟠 2. Emergency Help and Crisis Lines</h2>
-            <p>If you ever feel you can't keep yourself or someone else safe, please call <strong>999</strong> or go to your nearest A&E.</p>
-            
-            <h3>24/7 Mental Health Helplines:</h3>
-            <ul>
-                <li><strong>Samaritans:</strong> 116 123 (free, confidential)</li>
-                <li><strong>Shout Text Line:</strong> Text SHOUT to 85258</li>
-                <li><strong>Mind Infoline:</strong> 0300 123 3393</li>
-            </ul>
-            
-            <p>If you are caring for someone with a mental health condition and you're worried, you can also contact your local NHS crisis team (find details at <a href="https://www.nhs.uk/service-search/mental-health/find-an-urgent-mental-health-helpline" target="_blank" rel="noopener noreferrer" class="external-link">NHS urgent mental health helpline</a>).</p>
-        </div>
+            <section class="help-section emergency">
+                <h2><i class="fas fa-exclamation-triangle"></i> Emergency Support</h2>
+                <p>If you're in crisis or feeling unsafe, please reach out to these services immediately.</p>
+                
+                <div style="margin: 1.5rem 0;">
+                    <a href="tel:999" class="btn" style="background-color: #dc2626; color: white; width: 100%; text-align: center; justify-content: center; margin-bottom: 1rem;">
+                        <i class="fas fa-phone-alt"></i> Call 999
+                    </a>
+                    <p style="font-size: 0.9rem; color: var(--text-light); text-align: center;">For immediate danger to life or medical emergencies</p>
+                </div>
+                
+                <h3>24/7 Mental Health Helplines:</h3>
+                <ul>
+                    <li><strong>Samaritans:</strong> <a href="tel:116123">116 123</a> (free, confidential)</li>
+                    <li><strong>Shout:</strong> Text SHOUT to <a href="sms:85258">85258</a></li>
+                    <li><strong>Mind Infoline:</strong> <a href="tel:03001233393">0300 123 3393</a></li>
+                </ul>
+                
+                <h3>For Carers in Crisis:</h3>
+                <ul>
+                    <li><strong>Carers UK Helpline:</strong> <a href="tel:08088087777">0808 808 7777</a> (Mon-Fri, 9am-6pm)</li>
+                    <li><strong>Mind Infoline:</strong> <a href="tel:03001233393">0300 123 3393</a> (Mon-Fri, 9am-6pm)</li>
+                </ul>
+            </section>
 
-        <div class="help-section">
-            <h2>🟣 3. Self-Care for Carers</h2>
-            <p><em>Remember: Self-care is not selfish.</em></p>
-            <ul>
-                <li><strong>Stay connected:</strong> Loneliness increases stress. Make time for a friend or community group.</li>
-                <li><strong>Eat well:</strong> Nourishing your body helps you keep going.</li>
-                <li><strong>Move your body:</strong> Even gentle exercise helps clear your mind.</li>
-                <li><strong>Get support:</strong> Asking for help is a sign of strength, not weakness.</li>
-            </ul>
-            <p>You can book a Wellbeing Check-In Call with CarersMind—just email us at <a href="mailto:infocontact@carersmind.co.uk">infocontact@carersmind.co.uk</a>.</p>
-        </div>
-
-        <div class="help-section">
-            <h2>🟡 4. Helpful Guides and Toolkits</h2>
-            <h3>Downloadable PDFs:</h3>
-            <ul>
-                <li>Caring and Mental Health – A Practical Guide</li>
-                <li>Managing Carer Guilt and Grief</li>
-                <li>Creating a Self-Care Plan</li>
-            </ul>
-            <p>If you prefer printed copies, contact us, and we can post them to you.</p>
+            <section class="help-section">
+                <h2><i class="fas fa-hands-helping"></i> Self-Care for Carers</h2>
+                <p>Taking care of yourself is essential to being able to care for others. Here are some self-care strategies:</p>
+                
+                <ul>
+                    <li><strong>Prioritize sleep:</strong> Aim for 7-9 hours of quality sleep each night.</li>
+                    <li><strong>Stay active:</strong> Even a short walk can boost your mood and energy levels.</li>
+                    <li><strong>Eat well:</strong> Nourish your body with balanced meals and stay hydrated.</li>
+                    <li><strong>Take breaks:</strong> Schedule regular short breaks throughout your day.</li>
+                </ul>
+            </section>
         </div>
 
         <div class="contact-info">
-            <h2>✨ Need Immediate Help?</h2>
-            <p>📧 <a href="mailto:infocontact@carersmind.co.uk">infocontact@carersmind.co.uk</a><br>
-            🌐 <a href="https://www.carersmind.co.uk" target="_blank" rel="noopener noreferrer">www.carersmind.co.uk</a><br>
-            💬 Message us on Facebook or Instagram</p>
-            
-            <p class="support-message">You deserve support, too.</p>
+            <h3>Need more personalized support?</h3>
+            <p>Our team is here to help you find the right resources and support.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                <a href="mailto:support@carersmind.org" class="btn" style="background-color: white; color: var(--primary); border: 1px solid var(--primary);">
+                    <i class="fas fa-envelope"></i> Email Us
+                </a>
+                <a href="tel:+441234567890" class="btn btn-primary">
+                    <i class="fas fa-phone-alt"></i> Call Support
+                </a>
+            </div>
         </div>
     </div>
 </body>
