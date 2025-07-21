@@ -2,6 +2,31 @@
 console.log('Store script loaded');
 const products = [
     {
+        id: 6,
+        name: "Carers' Mind Identity Lanyard",
+        price: 9.99,
+        bundlePrice: 7.50,
+        minBundleQty: 10,
+        image: "./images/lanyard.jpg",
+        description: "More than a lanyard—it's a badge of honor for those who hold up the world. Designed for carers who want to be seen while keeping essentials close.",
+        category: "accessories",
+        stock: 100,
+        features: [
+            "Breakaway safety clasp (prevents workplace accidents)",
+            "Adjustable 34-42\" length fits all body types",
+            "Dual-sided printing: Front: 'CARERS\' MIND' in bold NHS-blue, Back: 'Mental Health Matters' with crisis hotline",
+            "Waterproof ID pocket (fits standard NHS badges)",
+            "Every lanyard funds 30 mins of our Carer Support Chatline"
+        ],
+        perfectFor: [
+            "Care homes ordering for staff recognition",
+            "Student carers needing campus visibility",
+            "Self-identifying carers at support groups"
+        ],
+        specialOffer: "Bulk discount: Order 10+ for just £7.50 each (Care homes save 25%)",
+        colors: ["NHS Blue"]
+    },
+    {
         id: 1,
         name: "Custom Made Mug",
         price: 12.99,
