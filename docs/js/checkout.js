@@ -170,9 +170,80 @@ function initializeStripe() {
                 errorElement.textContent = error.message;
             } else {
                 // Handle successful payment method creation
-                // You would typically send the paymentMethod.id to your server
-                // along with the order details to complete the payment
-                console.log('PaymentMethod:', paymentMethod);
+                // Initialize Stripe with your publishable key
+                const stripe = Stripe('your_publishable_key'); // Replace with your actual Stripe publishable key
+
+                // Load cart data from localStorage
+                let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+                // Function to render cart items
+                function renderCartItems() {
+                    const cartItemsContainer = document.getElementById('cart-items');
+                    cartItemsContainer.innerHTML = '';
+                    
+                    cartItems.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'cart-item';
+                        itemElement.innerHTML = `
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <p>£${item.price.toFixed(2)} × ${item.quantity}</p>
+                                <p class="item-total">Total: £${(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                        `;
+                        cartItemsContainer.appendChild(itemElement);
+                    });
+                }
+
+                // Function to calculate total amount
+                function calculateTotal() {
+                    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+                }
+
+                // Function to create Stripe checkout session
+                async function createCheckoutSession() {
+                    try {
+                        const response = await fetch('/create-checkout-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                items: cartItems,
+                                total: calculateTotal()
+                            })
+                        });
+
+                        const session = await response.json();
+                        
+                        // Redirect to Stripe Checkout
+                        const result = await stripe.redirectToCheckout({
+                            sessionId: session.id,
+                        });
+
+                        if (result.error) {
+                            throw result.error;
+                        }
+                    } catch (error) {
+                        console.error('Error creating checkout session:', error);
+                        alert('An error occurred while processing your payment. Please try again.');
+                    }
+                }
+
+                // Initialize checkout
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Render cart items
+                    renderCartItems();
+                    
+                    // Initialize Stripe checkout button
+                    const checkoutButton = document.createElement('button');
+                    checkoutButton.className = 'btn btn-primary';
+                    checkoutButton.textContent = 'Proceed to Payment';
+                    checkoutButton.addEventListener('click', createCheckoutSession);
+                    
+                    const checkoutForm = document.getElementById('checkout-form');
+                    checkoutForm.appendChild(checkoutButton);
+                });
                 // processPayment(paymentMethod.id);
             }
         });

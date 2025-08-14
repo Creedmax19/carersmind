@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Migration Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        .check {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .check.pass {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        .check.fail {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .check.warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+        }
+        .check .icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .pass .icon { color: #4caf50; }
+        .fail .icon { color: #f44336; }
+        .warning .icon { color: #ffc107; }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .summary {
+            font-size: 1.2em;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .summary.pass {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .summary.fail {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <h1>Firebase Migration Verification</h1>
+    
+    <div class="section">
+        <h2>Verification Status</h2>
+        <p>This tool checks if the migration from Supabase to Firebase is complete and verifies that all Firebase services are properly configured.</p>
+        
+        <button id="runVerification" class="btn">Run Verification</button>
+        
+        <div id="loading" class="loading hidden">
+            <p>Running verification checks...</p>
+        </div>
+        
+        <div id="summary" class="summary hidden"></div>
+        
+        <div id="results">
+            <!-- Results will be inserted here -->
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Next Steps</h2>
+        <div id="nextSteps">
+            <p>Run the verification to see the next steps for completing your Firebase migration.</p>
+        </div>
+    </div>
+    
+    <!-- Load Firebase SDKs first -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Load Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Initialize Firebase -->
+    <script>
+        // Initialize Firebase immediately after config is loaded
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase initialized successfully');
+            }
+            
+            // Make sure Firebase services are available
+            window.firebaseAuth = firebase.auth();
+            window.firestore = firebase.firestore();
+            window.firebaseStorage = firebase.storage();
+            
+            console.log('Firebase services initialized');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+    </script>
+    
+    <!-- Load Firebase Services -->
+    <script src="js/firebase-auth.js" defer></script>
+    <script src="js/order-service.js" defer></script>
+    
+    <!-- Verification Script -->
+    <script>
+        // Override the default verification to wait for Firebase to be ready
+        function runVerification() {
+            console.log('🚀 Starting Firebase Migration Verification\n');
+            
+            // Check if Firebase is initialized
+            if (!firebase.apps.length) {
+                console.log('❌ Firebase is not initialized');
+                return;
+            }
+            
+            // Check Firebase config
+            try {
+                const config = firebase.app().options;
+                if (!config || !config.apiKey || config.apiKey.includes('YOUR_') || config.apiKey.includes('...')) {
+                    console.log('❌ Firebase configuration appears to be missing or using placeholder values');
+                    console.log('   Please update the configuration in js/firebase-config.js with your actual Firebase project details');
+                } else {
+                    console.log('✅ Firebase is properly configured');
+                }
+            } catch (e) {
+                console.log(`❌ Error checking Firebase config: ${e.message}`);
+            }
+            
+            // Check auth service
+            if (typeof authService === 'undefined') {
+                console.log('❌ authService is not properly defined');
+                console.log('   Make sure js/firebase-auth.js is loaded and initialized correctly');
+            } else {
+                console.log('✅ authService is properly defined');
+            }
+            
+            // Check order service
+            if (typeof orderService === 'undefined') {
+                console.log('❌ orderService is not properly defined');
+                console.log('   Make sure js/order-service.js is loaded and initialized correctly');
+            } else {
+                console.log('✅ orderService is properly defined');
+            }
+            
+            console.log('\n✅ Verification complete!');
+        }
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const runBtn = document.getElementById('runVerification');
+            const loadingEl = document.getElementById('loading');
+            const resultsEl = document.getElementById('results');
+            const summaryEl = document.getElementById('summary');
+            const nextStepsEl = document.getElementById('nextSteps');
+            
+            // Override console.log to capture output
+            const originalConsoleLog = console.log;
+            const logs = [];
+            
+            console.log = function(message) {
+                logs.push(message);
+                originalConsoleLog.apply(console, arguments);
+                
+                // Update UI with the log message
+                const logEntry = document.createElement('div');
+                logEntry.textContent = message;
+                
+                // Style based on message type
+                if (message.includes('❌') || message.includes('error')) {
+                    logEntry.className = 'check fail';
+                    logEntry.innerHTML = '<span class="icon">❌</span> ' + message;
+                } else if (message.includes('✅') || message.includes('success')) {
+                    logEntry.className = 'check pass';
+                    logEntry.innerHTML = '<span class="icon">✅</span> ' + message;
+                } else if (message.includes('⚠️') || message.includes('warning')) {
+                    logEntry.className = 'check warning';
+                    logEntry.innerHTML = '<span class="icon">⚠️</span> ' + message;
+                } else if (message.includes('🔍')) {
+                    logEntry.style.fontWeight = 'bold';
+                    logEntry.style.marginTop = '15px';
+                    logEntry.style.marginBottom = '5px';
+                }
+                
+                resultsEl.appendChild(logEntry);
+            };
+            
+            runBtn.addEventListener('click', function() {
+                // Reset UI
+                resultsEl.innerHTML = '';
+                logs.length = 0;
+                loadingEl.classList.remove('hidden');
+                summaryEl.classList.add('hidden');
+                
+                // Run verification after a short delay to allow UI to update
+                setTimeout(() => {
+                    try {
+                        // Run the verification
+                        runVerification();
+                        
+                        // Check results
+                        const failCount = logs.filter(log => log.includes('❌')).length;
+                        const passCount = logs.filter(log => log.includes('✅')).length;
+                        
+                        // Update summary
+                        if (failCount > 0) {
+                            summaryEl.textContent = `Verification failed with ${failCount} ${failCount === 1 ? 'issue' : 'issues'} found.`;
+                            summaryEl.className = 'summary fail';
+                            
+                            // Update next steps
+                            nextStepsEl.innerHTML = `
+                                <h3>Issues Detected</h3>
+                                <p>Please address the following issues:</p>
+                                <ul>
+                                    ${logs.filter(log => log.includes('❌')).map(issue => `<li>${issue.replace('❌', '').trim()}</li>`).join('')}
+                                </ul>
+                                <p>After making changes, run the verification again to confirm all issues are resolved.</p>
+                            `;
+                        } else {
+                            summaryEl.textContent = '✅ All verification checks passed successfully!';
+                            summaryEl.className = 'summary pass';
+                            
+                            // Update next steps
+                            nextStepsEl.innerHTML = `
+                                <h3>Migration Complete!</h3>
+                                <p>Your Firebase migration has been successfully verified. Here are some next steps:</p>
+                                <ol>
+                                    <li>Test all user flows to ensure everything works as expected</li>
+                                    <li>Update any remaining documentation or comments that reference Supabase</li>
+                                    <li>Consider removing any unused Supabase dependencies from your project</li>
+                                    <li>Deploy the updated application to your production environment</li>
+                                </ol>
+                                <p>If you encounter any issues, you can run this verification tool again to help diagnose problems.</p>
+                            `;
+                        }
+                        
+                        summaryEl.classList.remove('hidden');
+                    } catch (error) {
+                        console.log(`❌ Error running verification: ${error.message}`);
+                        summaryEl.textContent = 'An error occurred during verification. Please check the console for details.';
+                        summaryEl.className = 'summary fail';
+                        summaryEl.classList.remove('hidden');
+                    } finally {
+                        loadingEl.classList.add('hidden');
+                    }
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

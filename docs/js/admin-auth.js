@@ -1,192 +1,132 @@
-// Admin Authentication with Firebase
-const ADMIN_EMAILS = ['admin@carersmind.com']; // Add more admin emails as needed
+/**
+ * Admin Authentication Service for Firebase
+ * Handles admin-specific authentication and authorization
+ */
 
-// Check if user is logged in and has admin privileges
-function checkAuth() {
-    return new Promise((resolve) => {
-        firebase.auth().onAuthStateChanged((user) => {
-            const currentPath = window.location.pathname;
-            const isLoginPage = currentPath.includes('login.html');
-            const isDashboardPage = currentPath.includes('dashboard.html');
-            
-            if (user && ADMIN_EMAILS.includes(user.email)) {
-                // User is signed in and is an admin
-                if (isLoginPage) {
-                    window.location.href = 'dashboard.html';
+class AdminAuthService {
+    constructor() {
+        this.auth = firebase.auth();
+        this.db = firebase.firestore();
+        this.user = null;
+        this.adminRoles = ['admin', 'superadmin'];
+        this.initAuthStateListener();
+    }
+
+    // Initialize auth state listener
+    initAuthStateListener() {
+        this.auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Verify if user has admin role
+                const isAdmin = await this.checkAdminRole(user.uid);
+                if (isAdmin) {
+                    this.user = user;
+                    console.log('Admin user signed in:', user.uid);
+                    this.onAuthStateChanged(true);
+                } else {
+                    console.log('User is not an admin, signing out...');
+                    await this.auth.signOut();
+                    window.location.href = '/admin/login.html?error=unauthorized';
                 }
-                resolve(true);
             } else {
-                // User is not signed in or not an admin
-                if (isDashboardPage) {
-                    window.location.href = 'login.html';
-                }
-                resolve(false);
+                this.user = null;
+                console.log('Admin user signed out');
+                this.onAuthStateChanged(false);
             }
         });
-    });
-}
+    }
 
-// Handle login form submission
-function handleLogin(email, password, rememberMe) {
-    const errorMessage = document.getElementById('errorMessage');
-    const loginBtn = document.getElementById('loginBtn');
-    
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.classList.add('loading');
-    errorMessage.textContent = '';
-    
-    // Sign in with email and password
-    firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
+    // Check if user has admin role
+    async checkAdminRole(uid) {
+        try {
+            const userDoc = await this.db.collection('admins').doc(uid).get();
+            return userDoc.exists && this.adminRoles.includes(userDoc.data().role);
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+            return false;
+        }
+    }
+
+    // Login with email and password
+    async login(email, password) {
+        try {
+            const { user } = await this.auth.signInWithEmailAndPassword(email, password);
             
-            // Check if user is an admin
-            if (!ADMIN_EMAILS.includes(user.email)) {
-                throw new Error('Access denied. Admin privileges required.');
+            // Verify admin role after successful login
+            const isAdmin = await this.checkAdminRole(user.uid);
+            if (!isAdmin) {
+                await this.auth.signOut();
+                throw new Error('Access denied. Administrator privileges required.');
             }
             
-            // Set persistence based on remember me
-            const persistence = rememberMe ? 
-                firebase.auth.Auth.Persistence.LOCAL : 
-                firebase.auth.Auth.Persistence.SESSION;
-                
-            return firebase.auth().setPersistence(persistence);
-        })
-        .then(() => {
-            // Redirect to dashboard on successful login
-            window.location.href = 'dashboard.html';
-        })
-        .catch((error) => {
-            // Handle errors
-            console.error('Login error:', error);
-            let errorMessage = 'Login failed. Please try again.';
-            
-            switch (error.code) {
-                case 'auth/user-not-found':
-                case 'auth/wrong-password':
-                    errorMessage = 'Invalid email or password.';
-                    break;
-                case 'auth/too-many-requests':
-                    errorMessage = 'Too many failed attempts. Please try again later.';
-                    break;
-                case 'auth/user-disabled':
-                    errorMessage = 'This account has been disabled.';
-                    break;
-            }
-            
-            errorMessage.textContent = errorMessage;
-            errorMessage.style.display = 'block';
-            loginBtn.disabled = false;
-            loginBtn.classList.remove('loading');
-        });
-}
-
-// Handle password reset
-function handlePasswordReset(email) {
-    return firebase.auth().sendPasswordResetEmail(email)
-        .then(() => {
-            return { success: true, message: 'Password reset email sent. Please check your inbox.' };
-        })
-        .catch((error) => {
-            console.error('Password reset error:', error);
+            return { success: true, user };
+        } catch (error) {
+            console.error('Admin login error:', error);
             return { 
                 success: false, 
-                message: error.message || 'Failed to send password reset email.' 
+                error: error.message || 'Invalid email or password' 
             };
-        });
+        }
+    }
+
+    // Logout the current admin user
+    async logout() {
+        try {
+            await this.auth.signOut();
+            window.location.href = '/admin/login.html';
+            return { success: true };
+        } catch (error) {
+            console.error('Logout error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Password reset for admin users
+    async resetPassword(email) {
+        try {
+            await this.auth.sendPasswordResetEmail(email);
+            return { success: true };
+        } catch (error) {
+            console.error('Password reset error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Get current authenticated admin user
+    getCurrentUser() {
+        return this.user;
+    }
+
+    // Check if admin is authenticated
+    isAuthenticated() {
+        return this.user !== null;
+    }
+
+    // Callback for auth state changes
+    onAuthStateChanged() {
+        // Can be overridden by admin pages
+    }
 }
 
-// Handle logout
-function handleLogout() {
-    return firebase.auth().signOut()
-        .then(() => {
-            window.location.href = 'login.html';
-        });
-}
+// Initialize Admin Auth Service
+let adminAuthService;
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    const forgotPasswordLink = document.getElementById('forgotPassword');
-    const logoutBtn = document.getElementById('logoutBtn');
-    
-    // Check authentication status on page load
-    checkAuth();
-    
-    // Handle login form submission
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            
-            handleLogin(email, password, rememberMe);
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Firebase if not already initialized
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
     
-    // Handle forgot password
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            const email = prompt('Please enter your email address to reset your password:');
-            
-            if (email) {
-                handlePasswordReset(email)
-                    .then(result => {
-                        if (result.success) {
-                            alert(result.message);
-                        } else {
-                            alert('Error: ' + result.message);
-                        }
-                    });
-            }
-        });
-    }
+    adminAuthService = new AdminAuthService();
     
-    // Handle logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            handleLogout();
-        });
-    }
-});
-
-// Handle login form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    const loginMessage = document.getElementById('loginMessage');
+    // Make available globally
+    window.adminAuthService = adminAuthService;
     
-    // Check authentication status on page load
-    checkAuth();
-    
-    // Handle login form submission
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const result = login(username, password);
-            
-            if (result.success) {
-                window.location.href = 'dashboard.html';
-            } else {
-                loginMessage.textContent = result.message || 'Login failed';
-                loginMessage.className = 'message error';
-            }
-        });
-    }
-    
-    // Handle logout
+    // Handle logout button if it exists
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
+        logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            logout();
+            adminAuthService.logout();
         });
     }
 });

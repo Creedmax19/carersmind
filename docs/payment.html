@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Payment - Carer's Care CIC</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+        .form-section h3 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #f8f9fa;
+            padding-bottom: 0.5rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+        #card-element {
+            border: 1px solid #ced4da;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        #card-errors {
+            color: #dc3545;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-pay {
+            background-color: #4CAF50;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-pay:hover {
+            background-color: #3e8e41;
+            transform: translateY(-2px);
+        }
+        .payment-summary {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .payment-summary h4 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .payment-summary p {
+            margin-bottom: 0.5rem;
+        }
+        .nav-tabs {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 600;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            margin-right: 0.5rem;
+        }
+        .nav-tabs .nav-link.active {
+            color: #4CAF50;
+            background-color: transparent;
+            border-bottom: 3px solid #4CAF50;
+        }
+        .payment-method {
+            display: none;
+        }
+        .payment-method.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Carer's Care CIC</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="payment.html">Make a Payment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="get-help.html">Get Help</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Make a Payment</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Payment Tabs -->
+                <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="card-tab" data-bs-toggle="tab" data-bs-target="#card" type="button" role="tab">
+                            <i class="bi bi-credit-card me-1"></i> Credit/Debit Card
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank" type="button" role="tab">
+                            <i class="bi bi-bank me-1"></i> Bank Transfer
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Payment Forms -->
+                <div class="tab-content">
+                    <!-- Card Payment Form -->
+                    <div class="tab-pane fade show active" id="card" role="tabpanel" aria-labelledby="card-tab">
+                        <div class="payment-container">
+                            <div id="payment-status"></div>
+                            
+                            <form id="payment-form">
+                                <div class="form-section">
+                                    <h3>Payment Details</h3>
+                                    
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label required-field">Amount (£)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">£</span>
+                                            <input type="text" class="form-control" id="amount" name="amount" required 
+                                                   placeholder="0.00" pattern="^\d+(\.\d{1,2})?$">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label required-field">Card Details</label>
+                                        <div id="card-element">
+                                            <!-- A Stripe Element will be inserted here. -->
+                                        </div>
+                                        <div id="card-errors" role="alert"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3>Bank Account Details (for refunds)</h3>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="accountHolderName" class="form-label required-field">Account Holder Name</label>
+                                            <input type="text" class="form-control" id="accountHolderName" name="accountHolderName" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="sortCode" class="form-label required-field">Sort Code</label>
+                                            <input type="text" class="form-control" id="sortCode" name="sortCode" 
+                                                   placeholder="12-34-56" pattern="\d{2}-?\d{2}-?\d{2}" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-8 mb-3">
+                                            <label for="accountNumber" class="form-label required-field">Account Number</label>
+                                            <input type="text" class="form-control" id="accountNumber" name="accountNumber" 
+                                                   pattern="\d{8}" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="reference" class="form-label">Reference (Optional)</label>
+                                            <input type="text" class="form-control" id="reference" name="reference">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-pay">
+                                        Pay Now
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Bank Transfer Form -->
+                    <div class="tab-pane fade" id="bank" role="tabpanel" aria-labelledby="bank-tab">
+                        <div class="payment-container">
+                            <div class="alert alert-info">
+                                <h4><i class="bi bi-info-circle-fill me-2"></i>Bank Transfer Instructions</h4>
+                                <p>Please use the following details to make a bank transfer:</p>
+                                
+                                <div class="bank-details p-3 bg-light rounded">
+                                    <p class="mb-1"><strong>Account Name:</strong> Carer's Care CIC</p>
+                                    <p class="mb-1"><strong>Sort Code:</strong> 12-34-56</p>
+                                    <p class="mb-1"><strong>Account Number:</strong> 12345678</p>
+                                    <p class="mb-1"><strong>Reference:</strong> Your Name</p>
+                                </div>
+                                
+                                <p class="mt-3 mb-0">Please include your name in the payment reference so we can identify your payment.</p>
+                            </div>
+                            
+                            <div class="alert alert-success">
+                                <h5>Payment Confirmation</h5>
+                                <p>After making the transfer, please fill out the form below to notify us of your payment:</p>
+                                
+                                <form id="bank-transfer-form">
+                                    <div class="mb-3">
+                                        <label for="transfer-amount" class="form-label">Amount (£)</label>
+                                        <input type="number" class="form-control" id="transfer-amount" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transfer-date" class="form-label">Transfer Date</label>
+                                        <input type="date" class="form-control" id="transfer-date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transfer-reference" class="form-label">Your Reference</label>
+                                        <input type="text" class="form-control" id="transfer-reference" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transfer-email" class="form-label">Your Email</label>
+                                        <input type="email" class="form-control" id="transfer-email" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Confirm Bank Transfer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment History Section -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Payment History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="payment-history">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading payment history...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2023 Carer's Care CIC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Stripe Elements -->
+    <!-- Custom JS -->
+    <script src="js/payment.js" type="module"></script>
+    
+    <script>
+        // Initialize Stripe Elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up Stripe.js and Elements to use in the card Element
+            const stripe = Stripe('your_publishable_key');
+            const elements = stripe.elements();
+            
+            // Custom styling can be passed to options when creating an Element
+            const style = {
+                base: {
+                    color: '#32325d',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            };
+            
+            // Create an instance of the card Element
+            const card = elements.create('card', {style: style});
+            
+            // Add an instance of the card Element into the `card-element` div
+            card.mount('#card-element');
+            
+            // Handle real-time validation errors from the card Element
+            card.on('change', function(event) {
+                const displayError = document.getElementById('card-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+            
+            // Handle form submission
+            const form = document.getElementById('payment-form');
+            if (form) {
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+                    
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const paymentStatus = document.getElementById('payment-status');
+                    
+                    // Disable submit button to prevent multiple submissions
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    
+                    try {
+                        // Create payment method using card Element
+                        const {paymentMethod, error} = await stripe.createPaymentMethod({
+                            type: 'card',
+                            card: card,
+                            billing_details: {
+                                name: document.getElementById('accountHolderName').value,
+                            },
+                        });
+                        
+                        if (error) {
+                            throw error;
+                        }
+                        
+                        // Get form data
+                        const formData = {
+                            amount: parseFloat(document.getElementById('amount').value),
+                            currency: 'gbp',
+                            paymentMethod: 'card',
+                            bankAccount: {
+                                accountHolderName: document.getElementById('accountHolderName').value,
+                                sortCode: document.getElementById('sortCode').value,
+                                accountNumber: document.getElementById('accountNumber').value,
+                                reference: document.getElementById('reference')?.value || ''
+                            },
+                            paymentMethodId: paymentMethod.id
+                        };
+                        
+                        // Send the payment data to your server
+                        const response = await fetch('/api/v1/payments', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(result.message || 'Payment failed');
+                        }
+                        
+                        // Show success message
+                        paymentStatus.innerHTML = `
+                            <div class="alert alert-success">
+                                <h4>Payment Successful!</h4>
+                                <p>Your payment of £${formData.amount.toFixed(2)} has been processed successfully.</p>
+                                <p>Reference: ${result.data.stripePaymentId || 'N/A'}</p>
+                            </div>
+                        `;
+                        
+                        // Reset form
+                        form.reset();
+                        
+                        // Reload payment history
+                        if (typeof loadPaymentHistory === 'function') {
+                            loadPaymentHistory();
+                        }
+                        
+                    } catch (error) {
+                        console.error('Payment error:', error);
+                        paymentStatus.innerHTML = `
+                            <div class="alert alert-danger">
+                                <h4>Payment Failed</h4>
+                                <p>${error.message || 'An error occurred while processing your payment. Please try again.'}</p>
+                            </div>
+                        `;
+                    } finally {
+                        // Re-enable submit button
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Pay Now';
+                    }
+                });
+            }
+            
+            // Handle bank transfer form submission
+            const bankTransferForm = document.getElementById('bank-transfer-form');
+            if (bankTransferForm) {
+                bankTransferForm.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+                    
+                    // In a real implementation, you would send this data to your server
+                    alert('Thank you for notifying us about your bank transfer. We will verify the payment and update your account soon.');
+                    bankTransferForm.reset();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

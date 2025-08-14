@@ -1,25 +1,4 @@
 {
-  "restartable": "rs",
-  "ignore": [
-    ".git",
-    "node_modules/**/node_modules",
-    ".sass-cache",
-    ".vscode",
-    "public"
-  ],
-  "verbose": true,
-  "execMap": {
-    "js": "node --inspect"
-  },
-  "watch": [
-    "src/",
-    "config/",
-    "app.js",
-    "server.js"
-  ],
-  "env": {
-    "NODE_ENV": "development",
-    "NODE_OPTIONS": "--trace-warnings"
-  },
-  "ext": "js,json"
+  "watch": ["./"],
+  "ext": "js,json,env"
 }

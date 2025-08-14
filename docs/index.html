@@ -14,14 +14,14 @@
     <meta property="og:url" content="https://carersmind.com/">
     <meta property="og:title" content="CarersMind | Supporting Those Who Care">
     <meta property="og:description" content="CarersMind - Supporting carers in their journey. We provide resources, support, and community for caregivers.">
-    <meta property="og:image" content="https://carersmind.com/images/logo-removebg-preview.png">
+    <meta property="og:image" content="/images/logo-removebg-preview.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://carersmind.com/">
     <meta property="twitter:title" content="CarersMind | Supporting Those Who Care">
     <meta property="twitter:description" content="CarersMind - Supporting carers in their journey. We provide resources, support, and community for caregivers.">
-    <meta property="twitter:image" content="https://carersmind.com/images/logo-removebg-preview.png">
+    <meta property="twitter:image" content="/images/logo-removebg-preview.png">
     
     <!-- Favicon and Logo -->
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -31,13 +31,86 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/css/style.css">
-    <script type="text/javascript" async>
-        var tlJsHost = "https://secure.trust-provider.com/";
-        document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const tlJsHost = "https://secure.trust-provider.com/";
+            const script = document.createElement('script');
+            script.src = tlJsHost + 'trustlogo/javascript/trustlogo.js';
+            script.async = true;
+            document.head.appendChild(script);
+        });
     </script>
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- Firebase SDKs with fallback -->
+    <script src="/js/app-config.js"></script>
+    <script>
+    // Load Firebase scripts with fallback
+    function loadScript(src, onload) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                if (onload) onload();
+                resolve();
+            };
+            script.onerror = () => {
+                console.error(`Failed to load script: ${src}`);
+                // Try alternative CDN if available
+                const altSrc = src.replace('gstatic.com', 'www.gstatic.com');
+                if (src !== altSrc) {
+                    console.log(`Trying alternative CDN: ${altSrc}`);
+                    loadScript(altSrc, onload).then(resolve).catch(reject);
+                } else {
+                    reject(new Error(`Failed to load script: ${src}`));
+                }
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+    // Load Firebase scripts in order
+    Promise.all([
+        loadScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'),
+        loadScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js'),
+        loadScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'),
+        loadScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js')
+    ]).then(() => {
+        console.log('Firebase scripts loaded successfully');
+        // Initialize app services
+        const configScript = document.createElement('script');
+        configScript.src = '/js/firebase-config.js';
+        configScript.onload = function() {
+            const scripts = [
+                '/js/firebase-auth.js',
+                '/js/order-service.js',
+                '/js/init-services.js'
+            ];
+            let idx = 0;
+            function loadNext() {
+                if (idx >= scripts.length) {
+                    if (typeof initializeServices === 'function') {
+                        initializeServices().catch(function(err){
+                            console.error('Failed to initialize services:', err);
+                        });
+                    }
+                    return;
+                }
+                const s = document.createElement('script');
+                s.src = scripts[idx++];
+                s.onload = loadNext;
+                s.onerror = loadNext;
+                document.head.appendChild(s);
+            }
+            loadNext();
+        };
+        document.head.appendChild(configScript);
+    }).catch(error => {
+        console.error('Failed to load Firebase scripts:', error);
+    });
+    </script>
 </head>
 <body>
     <!-- Floating Navigation -->
@@ -306,7 +379,7 @@
                 <div class="merch-grid fade-in">
                     <div class="merch-item">
                         <div class="merch-image">
-                            <img src="c:\Users\USER\Documents\p2.jpg" alt="Carer's Care T-shirt">
+                            <img src="/images/tshirt.jpg" alt="Carer's Care T-shirt" onerror="this.src='/images/placeholder-product.jpg'">
                         </div>
                         <div class="merch-details">
                             <h3>CarersMind T-shirt</h3>
@@ -442,12 +515,24 @@
                 <!-- Product items will be dynamically loaded here -->
             </div>
             <div id="cart" class="shopping-cart">
-                <h3><i class="fas fa-shopping-cart"></i> Cart <span id="cart-count">0</span></h3>
-                <div id="cart-items"></div>
-                <div class="cart-total">
-                    Total: £<span id="cart-total">0.00</span>
+                <div class="cart-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Your Cart <span id="cart-count" class="cart-count">0</span></h3>
+                    <button class="close-cart" aria-label="Close cart">&times;</button>
                 </div>
-                <button id="checkout-button" class="btn" onclick="window.location.href='login.html?redirect=checkout'">Proceed to Checkout</button>
+                <div class="cart-body">
+                    <div id="cart-items" class="cart-items">
+                        <!-- Cart items will be dynamically inserted here -->
+                    </div>
+                    <div class="cart-footer">
+                        <div class="cart-total">
+                            <span>Total:</span>
+                            <span id="cart-total">£0.00</span>
+                        </div>
+                        <button id="checkout-button" class="btn btn-primary" onclick="checkout()">
+                            <i class="fas fa-credit-card"></i> Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -518,12 +603,40 @@
     <!-- Stripe Integration -->
     <script src="https://js.stripe.com/v3/"></script>
     <script src="/js/gallery.js"></script>
-    <!-- Firebase Integration -->
-    <script src="/js/firebase-config.js"></script>
-    <script src="/js/firebase-auth.js"></script>
-    <script language="JavaScript" type="text/javascript">
-        TrustLogo("https://www.trustlogo.com/images/install/instantssl_trust_seal_md_159x42.png", "SC7", "none");
-        </script>
+    <!-- Firebase Integration managed above after SDK load -->
+    
+    <!-- Trust Logo Script -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            TrustLogo("/images/logo-removebg-preview.png", "CL1", "none");
+        });
+        
+        // Wait for services to initialize
+        document.addEventListener('firebaseServicesReady', function() {
+            console.log('Firebase services are ready');
+            
+            // Initialize any UI elements that depend on Firebase
+            if (window.authService) {
+                // Update UI based on auth state
+                authService.onAuthStateChanged(user => {
+                    const loginBtn = document.getElementById('loginBtn');
+                    const userMenu = document.getElementById('userMenu');
+                    const userName = document.getElementById('userName');
+                    
+                    if (user) {
+                        // User is signed in
+                        if (loginBtn) loginBtn.style.display = 'none';
+                        if (userMenu) userMenu.style.display = 'block';
+                        if (userName) userName.textContent = user.displayName || 'User';
+                    } else {
+                        // User is signed out
+                        if (loginBtn) loginBtn.style.display = 'block';
+                        if (userMenu) userMenu.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
         <a href="https://www.instantssl.com/ssl.html" id="comodoTL">Instant SSL</a>
 </body>
 </html><div id="trustlogo" title="Click to Verify">

@@ -1,27 +1,24 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
-const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const colors = require('colors');
-const errorHandler = require('./middleware/error');
+
+// Load environment variables
+dotenv.config({ path: path.join(__dirname, 'config', 'config.env') });
+
+// Import Supabase client
+const supabase = require('./config/supabaseClient');
 
 // Route files
 const blogRoutes = require('./routes/blogRoutes');
 const authRoutes = require('./routes/authRoutes');
-
-// Load env vars
-require('dotenv').config({ path: './config/config.env' });
-
-// Connect to database
-const connectDB = require('./config/db');
-connectDB();
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
@@ -33,9 +30,6 @@ app.use(cookieParser());
 
 // Enable CORS
 app.use(cors());
-
-// Sanitize data against NoSQL query injection
-app.use(mongoSanitize());
 
 // Set security headers
 app.use(helmet());
@@ -61,12 +55,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 if (process.env.NODE_ENV === 'development') {
   const swagger = require('./config/swagger');
   swagger(app);
-  console.log(`API Documentation: http://localhost:${process.env.PORT || 5000}/api-docs`.blue.bold);
+  console.log(`API Documentation: http://localhost:${process.env.PORT || 5002}/api-docs`.blue.bold);
 }
 
 // Mount routers
 app.use('/api/v1/blogs', blogRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/payments', paymentRoutes);
 
 // Default route
 app.get('/', (req, res) => {
@@ -74,8 +69,18 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Welcome to Carer\'s Care CIC API',
     documentation: process.env.NODE_ENV === 'development' 
-      ? `http://localhost:${process.env.PORT || 5000}/api-docs` 
+      ? `http://localhost:${process.env.PORT || 5002}/api-docs` 
       : 'https://api.carerscare.org/api-docs'
+  });
+});
+
+// Generic error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false, 
+    error: 'Server Error', 
+    message: err.message 
   });
 });
 
@@ -85,23 +90,19 @@ app.use((req, res, next) => {
     success: false,
     error: 'Not Found',
     message: `Cannot ${req.method} ${req.originalUrl}`
-  });});
+  });
+});
 
-// Error handling middleware
-app.use(errorHandler);
+const PORT = process.env.PORT || 5002;
 
-const PORT = process.env.PORT || 5000;
-
-const server = app.listen(
-  PORT,
+const server = app.listen(PORT, '127.0.0.1', () => {
   console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
-  )
-);
+    `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`.yellow.bold
+  );
+});
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`.red);
-  // Close server & exit process
   server.close(() => process.exit(1));
 });

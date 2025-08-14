@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">ShopCart</div>
+        <div class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">0</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="products">
+            <h2>Our Products</h2>
+            <div class="product-grid">
+                <!-- Product 1 -->
+                <div class="product-card" data-id="1">
+                    <img src="https://via.placeholder.com/200" alt="Product 1">
+                    <h3>Wireless Headphones</h3>
+                    <p class="price">$99.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="product-card" data-id="2">
+                    <img src="https://via.placeholder.com/200" alt="Product 2">
+                    <h3>Smart Watch</h3>
+                    <p class="price">$199.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="product-card" data-id="3">
+                    <img src="https://via.placeholder.com/200" alt="Product 3">
+                    <h3>Bluetooth Speaker</h3>
+                    <p class="price">$59.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                
+                <!-- Product 4 -->
+                <div class="product-card" data-id="4">
+                    <img src="https://via.placeholder.com/200" alt="Product 4">
+                    <h3>Phone Charger</h3>
+                    <p class="price">$19.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cart Sidebar -->
+        <div class="cart-overlay">
+            <div class="cart-sidebar">
+                <div class="cart-header">
+                    <h3>Your Cart</h3>
+                    <button class="close-cart">&times;</button>
+                </div>
+                <div class="cart-items">
+                    <!-- Cart items will be added here dynamically -->
+                </div>
+                <div class="cart-footer">
+                    <div class="cart-total">
+                        <h4>Total: <span>$0.00</span></h4>
+                    </div>
+                    <button class="checkout-btn">Proceed to Checkout</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

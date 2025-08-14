@@ -1,6 +1,4 @@
-const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/errorResponse');
-const User = require('../models/User');
+const supabase = require('../config/supabaseClient');
 
 // Protect routes
 exports.protect = async (req, res, next) => {
@@ -18,31 +16,43 @@ exports.protect = async (req, res, next) => {
     token = req.cookies.token;
   }
 
-  // Make sure token exists
   if (!token) {
-    return next(new ErrorResponse('Not authorized to access this route', 401));
+    return res.status(401).json({ success: false, error: 'Not authorized, no token' });
   }
 
   try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.user.id).select('-password');
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return res.status(401).json({ success: false, error: 'Not authorized, token failed' });
+    }
+
+    req.user = user;
     next();
-  } catch (err) {
-    return next(new ErrorResponse('Not authorized to access this route', 401));
+  } catch (error) {
+    res.status(401).json({ success: false, error: 'Not authorized, token failed' });
   }
 };
 
 // Grant access to specific roles
 exports.authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new ErrorResponse(
-          `User role ${req.user.role} is not authorized to access this route`,
-          403
-        )
-      );
+  return async (req, res, next) => {
+    // req.user is from the 'protect' middleware
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !profile) {
+        return res.status(401).json({ success: false, error: 'User profile not found.' });
+    }
+
+    if (!roles.includes(profile.role)) {
+      return res.status(403).json({
+        success: false,
+        error: `User role '${profile.role}' is not authorized to access this route.`
+      });
     }
     next();
   };

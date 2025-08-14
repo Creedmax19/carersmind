@@ -57,11 +57,104 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <!-- Firebase Config -->
     <script src="../js/firebase-config.js"></script>
     
-    <!-- Auth Script -->
+    <!-- Admin Auth Script -->
     <script src="../js/admin-auth.js"></script>
+    
+    <!-- Admin Login Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            const forgotPasswordLink = document.getElementById('forgotPassword');
+            
+            // Check for error in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            
+            if (error === 'unauthorized') {
+                showError('You do not have permission to access the admin panel.');
+            }
+            
+            // Login form submission
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                // Basic validation
+                if (!email || !password) {
+                    showError('Please enter both email and password');
+                    return;
+                }
+                
+                // Show loading state
+                loginBtn.disabled = true;
+                loginBtn.classList.add('loading');
+                
+                try {
+                    // Try to login using admin auth service
+                    const { success, error } = await adminAuthService.login(email, password);
+                    
+                    if (success) {
+                        // Set persistence based on remember me
+                        const persistence = rememberMe ? 
+                            firebase.auth.Auth.Persistence.LOCAL : 
+                            firebase.auth.Auth.Persistence.SESSION;
+                            
+                        await firebase.auth().setPersistence(persistence);
+                        
+                        // Redirect to dashboard on success
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        showError(error || 'Login failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showError(error.message || 'An error occurred during login. Please try again.');
+                } finally {
+                    // Reset button state
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('loading');
+                }
+            });
+            
+            // Forgot password handler
+            forgotPasswordLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const email = prompt('Please enter your email address to reset your password:');
+                
+                if (email) {
+                    try {
+                        await adminAuthService.resetPassword(email);
+                        alert('If an account exists with this email, you will receive a password reset link shortly.');
+                    } catch (error) {
+                        console.error('Password reset error:', error);
+                        alert('Failed to send password reset email. Please try again.');
+                    }
+                }
+            });
+            
+            // Show error message
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html>
