@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Carer's Care CIC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body class="admin-dashboard">
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="admin-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="posts">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Blog Posts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="new-post">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Post</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-menu">
+                    <span class="welcome">Welcome, <span id="adminName">Admin</span></span>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Sections -->
+            <div class="content-wrapper">
+                <!-- Dashboard Overview -->
+                <section id="dashboard-section" class="section active">
+                    <h2>Dashboard Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Posts</h3>
+                                <p id="totalPosts">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Views</h3>
+                                <p id="totalViews">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Comments</h3>
+                                <p id="totalComments">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-posts">
+                        <div class="section-header">
+                            <h3>Recent Posts</h3>
+                            <a href="#" class="btn-view-all">View All</a>
+                        </div>
+                        <div class="posts-list" id="recentPosts">
+                            <!-- Posts will be loaded here -->
+                            <div class="empty-state">
+                                <i class="fas fa-newspaper"></i>
+                                <p>No posts found</p>
+                                <a href="#" class="btn-primary" data-section="new-post">Create Your First Post</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Blog Posts List -->
+                <section id="posts-section" class="section">
+                    <div class="section-header">
+                        <h2>Blog Posts</h2>
+                        <a href="#" class="btn-primary" data-section="new-post">
+                            <i class="fas fa-plus"></i> New Post
+                        </a>
+                    </div>
+                    <div class="posts-table-container">
+                        <table class="posts-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postsList">
+                                <!-- Posts will be loaded here -->
+                                <tr>
+                                    <td colspan="5" class="empty-state">
+                                        <i class="fas fa-newspaper"></i>
+                                        <p>No posts found</p>
+                                        <a href="#" class="btn-primary" data-section="new-post">Create Your First Post</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- New/Edit Post -->
+                <section id="new-post-section" class="section">
+                    <div class="section-header">
+                        <h2>New Blog Post</h2>
+                        <button type="button" class="btn-secondary" id="saveDraftBtn">
+                            <i class="far fa-save"></i> Save Draft
+                        </button>
+                        <button type="button" class="btn-primary" id="publishBtn">
+                            <i class="fas fa-paper-plane"></i> Publish
+                        </button>
+                    </div>
+                    <form id="postForm" class="post-form">
+                        <div class="form-group">
+                            <input type="text" id="postTitle" placeholder="Post Title" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="postSlug" placeholder="URL Slug (auto-generated)" readonly>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="postExcerpt" placeholder="Short excerpt (max 160 characters)" maxlength="160"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div id="editor"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Featured Image</label>
+                                <div class="image-upload" id="featuredImageUpload">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload or drag and drop</p>
+                                    <input type="file" id="featuredImage" accept="image/*" aria-label="Upload featured image">
+                                </div>
+                                <div class="image-preview" id="imagePreview"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Categories</label>
+                                <div class="categories-container">
+                                    <div class="categories-list" id="categoriesList">
+                                        <!-- Categories will be added here -->
+                                    </div>
+                                    <div class="add-category">
+                                        <input type="text" id="newCategory" placeholder="Add category">
+                                        <button type="button" id="addCategoryBtn">+</button>
+                                    </div>
+                                </div>
+                                <label>Tags</label>
+                                <div class="tags-container">
+                                    <div class="tags-list" id="tagsList">
+                                        <!-- Tags will be added here -->
+                                    </div>
+                                    <input type="text" id="newTag" placeholder="Add tags (comma separated)">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="featuredPost">
+                                    <label for="featuredPost">Featured Post</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Settings -->
+                <section id="settings-section" class="section">
+                    <h2>Settings</h2>
+                    <div class="settings-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="general">General</button>
+                            <button class="tab-btn" data-tab="seo">SEO</button>
+                            <button class="tab-btn" data-tab="users">Users</button>
+                            <button class="tab-btn" data-tab="backup">Backup</button>
+                        </div>
+                        <div class="tab-content">
+                            <div id="general-tab" class="tab-pane active">
+                                <h3>General Settings</h3>
+                                <form id="generalSettingsForm">
+                                    <div class="form-group">
+                                        <label for="siteTitle">Site Title</label>
+                                        <input type="text" id="siteTitle" value="Carer's Care CIC" aria-label="Site title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="siteDescription">Site Description</label>
+                                        <textarea id="siteDescription" aria-label="Site description">Supporting carers in our community</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="postsPerPage">Posts per page</label>
+                                        <input type="number" id="postsPerPage" value="10" min="1" aria-label="Number of posts to display per page">
+                                    </div>
+                                    <button type="submit" class="btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                            <div id="seo-tab" class="tab-pane">
+                                <h3>SEO Settings</h3>
+                                <p>Configure your site's search engine optimization settings.</p>
+                            </div>
+                            <div id="users-tab" class="tab-pane">
+                                <h3>User Management</h3>
+                                <p>Manage admin users and permissions.</p>
+                            </div>
+                            <div id="backup-tab" class="tab-pane">
+                                <h3>Backup & Restore</h3>
+                                <p>Backup your site data or restore from a previous backup.</p>
+                                <button class="btn-secondary">
+                                    <i class="fas fa-download"></i> Create Backup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="imageLibraryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Media Library</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="media-upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag files here or click to upload</p>
+                    <input type="file" id="mediaUpload" multiple aria-label="Upload media files" title="Click or drag to upload media files">
+                </div>
+                <div class="media-grid" id="mediaGrid">
+                    <!-- Media items will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary close-modal">Cancel</button>
+                <button class="btn-primary" id="insertMediaBtn">Insert Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../js/firebase-config.js"></script>
+    
+    <!-- Admin Auth Script -->
+    <script src="../js/admin-auth.js"></script>
+    
+    <!-- Admin Script -->
+    <script src="../js/admin.js"></script>
+    
+    <script>
+        // Initialize admin dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Override the auth state change handler from AdminAuthService
+            adminAuthService.onAuthStateChanged = (isAuthenticated) => {
+                if (!isAuthenticated) {
+                    // Not authenticated, redirect to login
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // User is authenticated and is an admin
+                const user = adminAuthService.getCurrentUser();
+                if (user) {
+                    // Update UI with admin info
+                    const adminName = document.getElementById('adminName');
+                    const adminEmail = document.getElementById('adminEmail');
+                    
+                    if (adminName) {
+                        adminName.textContent = user.displayName || user.email.split('@')[0];
+                    }
+                    
+                    if (adminEmail) {
+                        adminEmail.textContent = user.email;
+                    }
+                    
+                    // Load admin data
+                    loadAdminData();
+                }
+            };
+            
+            // Initialize Quill editor if needed
+            if (typeof Quill !== 'undefined') {
+                initializeEditor();
+            }
+        });
+        
+        // Load admin-specific data
+        async function loadAdminData() {
+            try {
+                // Example: Load dashboard statistics
+                // const stats = await loadDashboardStats();
+                // updateDashboardStats(stats);
+                
+                // Example: Load recent activities
+                // const activities = await loadRecentActivities();
+                // updateRecentActivities(activities);
+                
+                console.log('Admin dashboard data loaded');
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showError('Failed to load dashboard data. Please refresh the page.');
+            }
+        }
+        
+        // Initialize Quill editor
+        function initializeEditor() {
+            // Check if we're on the new post or edit post page
+            const editorElement = document.getElementById('editor');
+            if (editorElement) {
+                const quill = new Quill(editorElement, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['blockquote', 'code-block'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image'],
+                            ['clean']
+                        ]
+                    },
+                    placeholder: 'Write your content here...',
+                });
+                
+                // Handle image upload
+                const toolbar = quill.getModule('toolbar');
+                toolbar.addHandler('image', () => {
+                    document.getElementById('imageUpload').click();
+                });
+                
+                // Handle image upload
+                document.getElementById('imageUpload').addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    try {
+                        // Upload image to Firebase Storage
+                        const storageRef = firebase.storage().ref(`posts/images/${file.name}`);
+                        const uploadTask = storageRef.put(file);
+                        
+                        uploadTask.on('state_changed', 
+                            (snapshot) => {
+                                // Progress function
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                console.log('Upload is ' + progress + '% done');
+                            }, 
+                            (error) => {
+                                // Handle unsuccessful uploads
+                                console.error('Upload failed:', error);
+                                showError('Failed to upload image. Please try again.');
+                            }, 
+                            () => {
+                                // Handle successful uploads on complete
+                                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                                    // Insert image into editor
+                                    const range = quill.getSelection(true);
+                                    quill.insertEmbed(range.index, 'image', downloadURL, 'user');
+                                    quill.setSelection(range.index + 1);
+                                });
+                            }
+                        );
+                    } catch (error) {
+                        console.error('Error uploading image:', error);
+                        showError('Failed to upload image. Please try again.');
+                    }
+                });
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            // You can implement a toast notification or display in a dedicated error area
+            console.error('Error:', message);
+            alert(message);
+        }
+    </script>
+</body>
+</html>

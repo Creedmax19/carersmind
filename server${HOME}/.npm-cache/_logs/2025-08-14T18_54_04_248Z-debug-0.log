@@ -1,0 +1,20 @@
+0 verbose cli C:\Users\USER\Downloads\node-v22.16.0-win-x64\node-v22.16.0-win-x64\node.exe C:\Users\USER\Downloads\node-v22.16.0-win-x64\node-v22.16.0-win-x64\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.16.0
+3 silly config load:file:C:\Users\USER\Downloads\node-v22.16.0-win-x64\node-v22.16.0-win-x64\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\USER\Carer's-care CIC\server\.npmrc
+5 silly config load:file:C:\Users\USER\.npmrc
+6 silly config load:file:C:\Users\USER\Downloads\node-v22.16.0-win-x64\node-v22.16.0-win-x64\etc\npmrc
+7 verbose title npm ls @scarf/scarf
+8 verbose argv "ls" "@scarf/scarf" "--json" "--long"
+9 verbose logfile logs-max:10 dir:C:\Users\USER\Carer's-care CIC\server${HOME}\.npm-cache\_logs\2025-08-14T18_54_04_248Z-
+10 verbose logfile C:\Users\USER\Carer's-care CIC\server${HOME}\.npm-cache\_logs\2025-08-14T18_54_04_248Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+13 verbose cwd C:\Users\USER\Carer's-care CIC\server
+14 verbose os Windows_NT 10.0.19045
+15 verbose node v22.16.0
+16 verbose npm  v10.9.2
+17 verbose exit 0
+18 info ok
+19 error A complete log of this run can be found in: C:\Users\USER\Carer's-care CIC\server${HOME}\.npm-cache\_logs\2025-08-14T18_54_04_248Z-debug-0.log

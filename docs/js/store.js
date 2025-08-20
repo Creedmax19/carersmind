@@ -813,7 +813,8 @@ function checkout() {
                 // Fallback to sessionId flow if provided
                 if (data && data.id) {
                     if (typeof Stripe !== 'function') throw new Error('Stripe.js not loaded');
-                    const stripe = Stripe('pk_test_51RuCo4AbgyHA5XcoXa8NWWQm11OsYSetjiQyNoXPohvyzQDwePqaJDPwX9OPgFaK6KgBeDugFwCs67lBpg7hGagS00eyrmVJuc');
+                    const stripe = window.getStripeInstance();
+                    if (!stripe) throw new Error('Stripe not initialized');
                     const result = await stripe.redirectToCheckout({ sessionId: data.id, mode: 'payment' });
                     if (result.error) throw result.error;
                     return;

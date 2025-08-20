@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Welcome to Carer's Care CIC",
+    "content": "Thank you for joining Carer's Care CIC. We are dedicated to supporting carers in our community with resources, guidance, and a supportive network. Stay tuned for more updates and resources to help you in your caregiving journey.",
+    "excerpt": "Welcome to our community of carers. We're here to support you every step of the way.",
+    "status": "published",
+    "tags": ["welcome", "support", "community"],
+    "categories": ["announcements"]
+  },
+  {
+    "title": "Self-Care for Carers",
+    "content": "Taking care of yourself is not selfish—it's essential. As a carer, it's important to prioritize your own well-being to provide the best care for your loved ones. In this post, we'll explore practical self-care strategies for carers.",
+    "excerpt": "Discover essential self-care strategies for carers to maintain their well-being.",
+    "status": "published",
+    "tags": ["self-care", "wellbeing", "health"],
+    "categories": ["resources", "wellbeing"]
+  },
+  {
+    "title": "Navigating Local Support Services",
+    "content": "Finding the right support services can be overwhelming. This guide will help you navigate the various local support services available to carers, including financial assistance, respite care, and community programs.",
+    "excerpt": "A comprehensive guide to finding and accessing local support services for carers.",
+    "status": "published",
+    "tags": ["support services", "resources", "community"],
+    "categories": ["resources"]
+  }
+]

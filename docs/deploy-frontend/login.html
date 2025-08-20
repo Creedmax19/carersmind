@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CarersMind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Load Firebase SDK (once at top) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Load Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- Load Stripe SDK (only once) -->
+    <script src="https://js.stripe.com/v3/" id="stripe-js"></script>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+            --error-color: #e53935;
+            --success-color: #43a047;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .auth-illustration {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: white;
+            display: none;
+        }
+
+        .auth-illustration-content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .auth-illustration h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-illustration p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .auth-form-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-form-wrapper {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo img {
+            max-width: 180px;
+            height: auto;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-google, .btn-apple {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: white;
+            color: #333;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        .btn-apple {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-apple:hover {
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password {
+            display: block;
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        @media (min-width: 992px) {
+            .auth-illustration {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .auth-form-wrapper {
+                padding: 1.5rem;
+                box-shadow: none;
+            }
+            
+            .auth-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-illustration">
+            <div class="auth-illustration-content">
+                <h1 id="welcome-title">Welcome Back!</h1>
+                <p id="welcome-message">Sign in to access your account and continue your journey with us. Your support helps make a difference in the lives of carers.</p>
+            </div>
+        </div>
+        <div class="auth-form-container">
+            <div class="auth-form-wrapper">
+                <div class="auth-logo">
+                    <img src="/images/logo-removebg-preview.png" alt="CarersMind Logo">
+                </div>
+                
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="login">Sign In</div>
+                    <div class="auth-tab" data-tab="register">Create Account</div>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" class="form-control" placeholder="Enter your email" required>
+                        <div class="error-message" id="login-email-error">Please enter a valid email address</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between;">
+                            <label for="login-password">Password</label>
+                            <a href="#" class="forgot-password">Forgot password?</a>
+                        </div>
+                        <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+                        <div class="error-message" id="login-password-error">Please enter your password</div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Sign In</button>
+                    
+                    <div class="divider">or continue with</div>
+                    
+                    <button type="button" class="btn btn-google">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </button>
+                    
+                    <button type="button" class="btn btn-apple">
+                        <i class="fab fa-apple"></i> Sign in with Apple
+                    </button>
+                    
+                    <div class="auth-footer">
+                        Don't have an account? <a href="#" id="show-register">Sign up</a>
+                    </div>
+                </form>
+                
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" class="form-control" placeholder="Enter your full name" required>
+                        <div class="error-message" id="register-name-error">Please enter your full name</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-email">Email Address</label>
+                        <input type="email" id="register-email" class="form-control" placeholder="Enter your email" required>
+                        <div class="error-message" id="register-email-error">Please enter a valid email address</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" class="form-control" placeholder="Create a password" required>
+                        <div class="error-message" id="register-password-error">Password must be at least 8 characters long</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-confirm-password">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" class="form-control" placeholder="Confirm your password" required>
+                        <div class="error-message" id="register-confirm-password-error">Passwords do not match</div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Create Account</button>
+                    
+                    <div class="auth-footer">
+                        Already have an account? <a href="#" id="show-login">Sign in</a>
+                    </div>
+                </form>
+                
+                <div id="success-message" class="success-message">
+                    Registration successful! Redirecting...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load app configuration and services -->
+    <script src="/js/app-config.js"></script>
+    <script>
+        // Wait for Firebase to be ready
+        function waitForFirebase() {
+            return new Promise((resolve, reject) => {
+                const startedAt = Date.now();
+                const checkFirebase = setInterval(() => {
+                    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+                        clearInterval(checkFirebase);
+                        resolve();
+                    } else if (Date.now() - startedAt > 10000) {
+                        clearInterval(checkFirebase);
+                        reject(new Error('Firebase failed to initialize'));
+                    }
+                }, 100);
+            });
+        }
+        // Helper to ensure Stripe is present
+        function checkStripeLoaded() {
+            return new Promise(function(resolve, reject) {
+                if (typeof Stripe === 'function') return resolve(true);
+                var start = Date.now();
+                var timer = setInterval(function() {
+                    if (typeof Stripe === 'function') {
+                        clearInterval(timer);
+                        resolve(true);
+                    } else if (Date.now() - start > 10000) {
+                        clearInterval(timer);
+                        reject(new Error('Stripe.js failed to load'));
+                    }
+                }, 100);
+            });
+        }
+    </script>
+    <!-- Load Firebase config and services -->
+    <script src="/js/firebase-config.js"></script>
+    <script src="/js/firebase-auth.js"></script>
+    <script src="/js/order-service.js"></script>
+    <script src="/js/init-services.js"></script>
+    <script>
+        // Initialize core services once DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initializeServices === 'function') {
+                initializeServices().catch(function(err) {
+                    console.error('Error initializing services:', err);
+                });
+            }
+        });
+        // checkStripeLoaded defined earlier
+    </script>
+    
+    
+    
+    <!-- Initialize everything when DOM is loaded -->
+    <script>
+        // Global initialization state
+        let isInitialized = false;
+
+        // Check if we're in a private/incognito window
+        function checkPrivateMode() {
+            return !window.indexedDB || !window.localStorage;
+        }
+
+        // Show warning for private/incognito mode
+        function showPrivateModeWarning() {
+            const warningElement = document.createElement('div');
+            warningElement.style.background = '#fff3e0';
+            warningElement.style.color = '#e65100';
+            warningElement.style.padding = '15px';
+            warningElement.style.margin = '10px';
+            warningElement.style.borderRadius = '4px';
+            warningElement.style.border = '1px solid #ffb74d';
+            warningElement.innerHTML = `
+                <strong>Warning:</strong> Private/incognito mode detected. 
+                Some features may not work correctly. For the best experience, 
+                please use a regular browser window.
+            `;
+            document.body.insertBefore(warningElement, document.body.firstChild);
+        }
+
+        // Show error message to user
+        function showError(message, details = '') {
+            const errorElement = document.createElement('div');
+            errorElement.style.background = '#ffebee';
+            errorElement.style.color = '#c62828';
+            errorElement.style.padding = '15px';
+            errorElement.style.margin = '10px';
+            errorElement.style.borderRadius = '4px';
+            errorElement.style.border = '1px solid #ef9a9a';
+            errorElement.innerHTML = `
+                <strong>Error:</strong> ${message}
+                ${details ? `<div style="font-size: 0.9em; margin-top: 5px;">${details}</div>` : ''}
+                <div style="margin-top: 10px;">
+                    <button onclick="window.location.reload()" style="
+                        background: #4a6fa5;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;">
+                        Refresh Page
+                    </button>
+                </div>
+            `;
+            document.body.insertBefore(errorElement, document.body.firstChild);
+        }
+
+        // Wait for Firebase services to be ready
+        async function waitForFirebaseServices() {
+            try {
+                // Wait for Firebase to be available
+                await waitForFirebase();
+                
+                // Wait for Firebase services to be initialized
+                await new Promise((resolve, reject) => {
+                    if (window.authService && window.authService.auth) {
+                        resolve();
+                        return;
+                    }
+
+                    const checkInterval = setInterval(() => {
+                        if (window.authService && window.authService.auth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+
+                    // Set timeout to prevent hanging
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        reject(new Error('Authentication service is not available'));
+                    }, 10000);
+                });
+
+                // Check if all required services are available
+                if (!window.firebaseAuth || !window.firestore || !window.firebaseStorage) {
+                    throw new Error('Required Firebase services are missing');
+                }
+
+                console.log('Firebase services initialized successfully');
+                isInitialized = true;
+                return true;
+            } catch (error) {
+                console.error('Failed to initialize Firebase services:', error);
+                throw error;
+            }
+        }
+
+        // Listen for Firebase initialization event
+        document.addEventListener('firebaseServicesReady', async (event) => {
+            try {
+                if (!isInitialized) {
+                    await waitForFirebaseServices();
+                    
+                    // Initialize auth listener if the function exists
+                    if (typeof initAuthListener === 'function') {
+                        initAuthListener();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to complete initialization:', error);
+                showError('Failed to initialize application', error.message);
+            }
+        });
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('DOM loaded, starting initialization...');
+                
+                // Show warning if in private mode but continue
+                if (checkPrivateMode()) {
+                    showPrivateModeWarning();
+                }
+
+                // Check if Firebase SDK is loaded
+                if (typeof firebase === 'undefined') {
+                    console.error('Firebase SDK not loaded');
+                    throw new Error('Firebase SDK not loaded. Please check your network connection.');
+                }
+
+                // Wait for Firebase initialization
+                await waitForFirebaseServices();
+
+                // Check if auth service is available
+                if (!window.authService) {
+                    console.error('AuthService not available after initialization');
+                    throw new Error('Authentication service failed to initialize');
+                }
+
+                // Check for Stripe.js
+                await checkStripeLoaded();
+
+                console.log('All services initialized successfully');
+                console.log('Firebase auth service:', window.authService);
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                showError('Failed to initialize application', error.message);
+            }
+        });
+    </script>
+    
+    <script>
+        // Wait for Firebase services to be ready
+        function initAuthListener() {
+            if (window.authService) {
+                // Check if user is already logged in
+                firebase.auth().onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('User logged in:', user.uid);
+                        const redirectPath = localStorage.getItem('redirectAfterLogin');
+                        if (redirectPath === '/stripe-checkout') {
+                            try {
+                                // Get Stripe instance
+                                const stripe = Stripe('pk_test_51RuCo4AbgyHA5XcoXa8NWWQm11OsYSetjiQyNoXPohvyzQDwePqaJDPwX9OPgFaK6KgBeDugFwCs67lBpg7hGagS00eyrmVJuc');
+
+                                // Validate cart items
+                                const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+                                if (cartItems.length === 0) {
+                                    throw new Error('Cart is empty');
+                                }
+
+                                // Product catalog with price IDs
+                                const products = [
+                                    {
+                                        id: 7,
+                                        name: "You Matter Mental Health Support Card",
+                                        priceId: 'price_1RvIzyAbgyHA5Xcovgow97xz', // Replace with actual price ID
+                                        price: 4.99,
+                                        image: './images/supportcard.jpg'
+                                    }
+                                    // Add other products with their price IDs as needed
+                                ];
+
+                                // Format items for Stripe
+                                const stripeItems = [];
+                                
+                                for (const item of cartItems) {
+                                    console.log('Processing cart item:', JSON.stringify(item, null, 2));
+                                    
+                                    // Find the product in our catalog
+                                    const product = products.find(p => p.id === item.id);
+                                    if (!product) {
+                                        console.error('Product not found in catalog:', item.id);
+                                        throw new Error(`Product not found: ${item.name || item.id}`);
+                                    }
+                                    
+                                    if (!product.priceId) {
+                                        console.error('Missing priceId for product:', product);
+                                        throw new Error(`Missing price ID for: ${product.name}`);
+                                    }
+                                    
+                                    // Ensure quantity is a valid number, default to 1 if invalid
+                                    let quantity = 1;
+                                    if (item.quantity !== undefined && item.quantity !== null) {
+                                        quantity = parseInt(item.quantity, 10);
+                                        if (isNaN(quantity) || quantity < 1) {
+                                            console.warn(`Invalid quantity (${item.quantity}) for product ${product.id}, using 1`);
+                                            quantity = 1;
+                                        }
+                                    }
+                                    
+                                    stripeItems.push({
+                                        price: product.priceId,
+                                        quantity: quantity
+                                    });
+                                    
+                                    console.log('Added to Stripe items:', {
+                                        name: product.name,
+                                        priceId: product.priceId,
+                                        quantity: quantity
+                                    });
+                                }
+
+                                console.log('Sending to server:', JSON.stringify(stripeItems, null, 2));
+
+                                let response;
+                                if (window.CHECKOUT_MODE === 'sample') {
+                                    // Use sample server: support price IDs and dynamic price_data fallback
+                                    const itemsForSample = [];
+                                    for (const item of cartItems) {
+                                        const product = products.find(p => p.id === item.id) || item;
+                                        const qty = Math.max(1, Number(item.quantity) || 1);
+                                        if (product && product.priceId) {
+                                            itemsForSample.push({ price: product.priceId, quantity: qty });
+                                            continue;
+                                        }
+
+                                        const unitAmount = Math.floor(((product && product.price) ? product.price : Number(item.price) || 0) * 100);
+                                        if (!unitAmount) {
+                                            console.warn('Skipping item with zero/invalid amount', item);
+                                            continue;
+                                        }
+
+                                        if (window.STRIPE_USE_PRODUCTS && product && product.productId) {
+                                            itemsForSample.push({ product: product.productId, unit_amount: unitAmount, currency: 'gbp', quantity: qty });
+                                        } else {
+                                            itemsForSample.push({
+                                                price_data: {
+                                                    currency: 'gbp',
+                                                    unit_amount: unitAmount,
+                                                    product_data: { name: (product && product.name) || item.name || `Item ${item.id}` }
+                                                },
+                                                quantity: qty
+                                            });
+                                        }
+                                    }
+                                    if (itemsForSample.length === 0) throw new Error('No valid items available for checkout.');
+                                    response = await fetch(`${window.STRIPE_SAMPLE_BASE_URL}/create-checkout-session`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ items: itemsForSample, metadata: { userId: user.uid } })
+                                    });
+                                } else {
+                                    // API mode (expects name/amount/quantity/productId)
+                                    const serverItems = cartItems.map((item) => {
+                                        const product = products.find(p => p.id === item.id);
+                                        return {
+                                            name: product ? product.name : (item.name || `Item ${item.id}`),
+                                            amount: product ? product.price : Number(item.price) || 0,
+                                            quantity: Number(item.quantity) || 1,
+                                            productId: product ? product.productId : null
+                                        };
+                                    });
+
+                                    // Acquire Firebase ID token for Authorization header (optional)
+                                    let idToken = '';
+                                    try {
+                                        idToken = await user.getIdToken();
+                                    } catch (e) {
+                                        console.warn('Could not obtain ID token; proceeding without Authorization header');
+                                    }
+
+                                    const apiBase = (window.API_BASE_URL || '/api/v1');
+                                    response = await fetch(`${apiBase}/payments/create-checkout-session`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+                                        },
+                                        body: JSON.stringify({
+                                            items: serverItems,
+                                            successUrl: `${window.location.origin}/payment-success.html`,
+                                            cancelUrl: `${window.location.origin}/index.html#store`,
+                                            metadata: { userId: user.uid }
+                                        })
+                                    });
+                                }
+
+                                if (!response.ok) {
+                                    const errorData = await response.json().catch(() => ({}));
+                                    throw new Error(errorData.error || `Failed to create checkout session: ${response.status}`);
+                                }
+
+                                const data = await response.json();
+
+                                // If server returns a hosted checkout URL, redirect to it; otherwise fallback to sessionId flow
+                                if ((data && data.success && data.url) || (data && data.url)) {
+                                    window.location.href = data.url;
+                                } else if (data && data.id) {
+                                    const result = await stripe.redirectToCheckout({ sessionId: data.id, mode: 'payment' });
+                                    if (result.error) throw result.error;
+                                } else {
+                                    throw new Error('Unexpected response from checkout session API');
+                                }
+                            } catch (error) {
+                                console.error('Error processing checkout:', error);
+                                alert(error.message || 'An error occurred while processing your payment. Please try again.');
+                                // Fallback to store page
+                                window.location.href = '/index.html#store';
+                            }
+                        } else if (redirectPath) {
+                            localStorage.removeItem('redirectAfterLogin');
+                            // For any non-checkout redirect, go directly
+                            window.location.href = redirectPath;
+                        }    
+                    }
+                });
+            } else {
+                // If authService isn't ready yet, wait a bit and try again
+                setTimeout(initAuthListener, 100);
+            }
+        }
+
+        // Handle redirect after login
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            // Check if redirected from checkout
+            if (urlParams.get('redirect') === 'checkout') {
+                console.log('Redirecting to Stripe checkout after login');
+                // Load cart data from localStorage
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart.length === 0) {
+                    // If cart is empty, redirect to store
+                    localStorage.setItem('redirectAfterLogin', '/index.html#store');
+                } else {
+                    // If cart has items, redirect to Stripe checkout
+                    localStorage.setItem('redirectAfterLogin', '/stripe-checkout');
+                }
+            }
+            
+            // Start the auth state listener
+            initAuthListener();
+        });
+    </script>
+
+    <script>
+        console.log('Script loaded, adding DOMContentLoaded listener');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded and parsed');
+            // Tab switching
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+            const welcomeTitle = document.getElementById('welcome-title');
+            const welcomeMessage = document.getElementById('welcome-message');
+            
+            function updateWelcomeMessage(isLogin) {
+                if (isLogin) {
+                    welcomeTitle.textContent = 'Welcome Back!';
+                    welcomeMessage.textContent = 'Sign in to access your account and continue your journey with us. Your support helps make a difference in the lives of carers.';
+                } else {
+                    welcomeTitle.textContent = 'Join Our Community';
+                    welcomeMessage.textContent = 'Create an account to access exclusive resources, track your support journey, and connect with other carers.';
+                }
+            }
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding form
+                    forms.forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === `${tabName}-form`) {
+                            form.classList.add('active');
+                            // Update welcome message based on active tab
+                            updateWelcomeMessage(tabName === 'login');
+                        }
+                    });
+                });
+            });
+            
+            // Show register form
+            document.getElementById('show-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.auth-tab[data-tab="register"]').click();
+            });
+            
+            // Show login form
+            document.getElementById('show-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.auth-tab[data-tab="login"]').click();
+            });
+            
+            // Form validation
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            function showError(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                return false;
+            }
+            
+            function hideError(elementId) {
+                document.getElementById(elementId).style.display = 'none';
+                return true;
+            }
+            
+            // Debug: Check if loginForm exists
+            console.log('Login form element:', loginForm);
+            
+            // Debug: Check if elements exist
+            console.log('Login email input:', document.getElementById('login-email'));
+            
+            // Forgot password link
+            const forgotPasswordLink = document.getElementById('forgot-password');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const email = prompt('Please enter your email address:');
+                    if (email) {
+                        try {
+                            await authService.resetPassword(email);
+                            alert('If an account exists with this email, you will receive a password reset link shortly.');
+                        } catch (error) {
+                            console.error('Password reset error:', error);
+                            alert('Failed to send password reset email. Please try again.');
+                        }
+                    }
+                });
+            }
+            
+            // Login form submission
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+                const errorElement = document.getElementById('login-error');
+                
+                // Clear previous errors
+                hideError('login-error');
+                
+                // Basic validation
+                if (!email) {
+                    return showError('login-error', 'Please enter your email address');
+                }
+                
+                if (!password) {
+                    return showError('login-error', 'Please enter your password');
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                
+                try {
+                    // Wait for authService to be available with timeout
+                    if (typeof authService === 'undefined') {
+                        await new Promise((resolve, reject) => {
+                            const checkAuthService = setInterval(() => {
+                                if (typeof authService !== 'undefined') {
+                                    clearInterval(checkAuthService);
+                                    resolve();
+                                }
+                            }, 100);
+                            
+                            // Timeout after 10 seconds
+                            setTimeout(() => {
+                                clearInterval(checkAuthService);
+                                reject(new Error('Authentication service is not available. Please refresh the page.'));
+                            }, 10000);
+                        });
+                    }
+                    
+                    // Check if authService has the login method
+                    if (typeof authService.login !== 'function') {
+                        throw new Error('Login functionality is not available. Please try again later.');
+                    }
+                    
+                    // Attempt to log in
+                    const { success, error, user } = await authService.login(email, password);
+                    
+                    if (!success) {
+                        throw new Error(error || 'Failed to sign in. Please check your credentials and try again.');
+                    }
+                    
+                    // Check if email is verified
+                    if (user && !user.emailVerified) {
+                        // Optionally send verification email
+                        await user.sendEmailVerification();
+                        throw new Error('Please verify your email address before logging in. We\'ve sent you a verification email.');
+                    }
+                    
+                    // Successful login - redirect or update UI
+                    console.log('User logged in successfully:', user.uid);
+                    
+                    // Check for redirect URL in URL parameters or localStorage
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectFromParams = urlParams.get('redirect');
+                    const redirectFromStorage = localStorage.getItem('redirectAfterLogin');
+                    const redirectTo = redirectFromParams || redirectFromStorage || '/';
+                    
+                    // Clear the redirect URL from storage
+                    localStorage.removeItem('redirectAfterLogin');
+                    
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'alert alert-success';
+                    successMsg.textContent = 'Login successful! Redirecting...';
+                    loginForm.prepend(successMsg);
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        console.log('Redirecting to:', redirectTo);
+                        window.location.href = redirectTo;
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    
+                    // Handle specific error cases
+                    let errorMessage = error.message || 'Failed to sign in. Please try again.';
+                    
+                    // Firebase Auth error codes (common ones)
+                    if (error.code) {
+                        switch (error.code) {
+                            case 'auth/user-not-found':
+                            case 'auth/wrong-password':
+                                errorMessage = 'Invalid email or password. Please try again.';
+                                break;
+                            case 'auth/too-many-requests':
+                                errorMessage = 'Too many failed login attempts. Please try again later or reset your password.';
+                                break;
+                            case 'auth/user-disabled':
+                                errorMessage = 'This account has been disabled. Please contact support.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = 'Network error. Please check your internet connection and try again.';
+                                break;
+                        }
+                    }
+                    
+                    showError('login-error', errorMessage);
+                    
+                    // Re-enable the submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    
+                    // Focus on the appropriate field
+                    if (error.code === 'auth/wrong-password') {
+                        document.getElementById('login-password').focus();
+                    } else if (error.code === 'auth/user-not-found') {
+                        document.getElementById('login-email').focus();
+                    }
+                }
+            });
+            
+            // Registration form submission
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('register-name').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                // Reset error messages
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+                
+                // Validate form
+                const errors = [];
+                
+                // Validate name
+                if (!name) {
+                    errors.push({ field: 'name', message: 'Name is required' });
+                }
+                
+                // Validate email
+                if (!email) {
+                    errors.push({ field: 'email', message: 'Email is required' });
+                } else if (!/\S+@\S+\.\S+/.test(email)) {
+                    errors.push({ field: 'email', message: 'Please enter a valid email address' });
+                }
+                
+                // Validate password
+                if (!password) {
+                    errors.push({ field: 'password', message: 'Password is required' });
+                } else if (password.length < 8) {
+                    errors.push({ field: 'password', message: 'Password must be at least 8 characters long' });
+                }
+                
+                // Validate confirm password
+                if (password !== confirmPassword) {
+                    errors.push({ field: 'confirmPassword', message: 'Passwords do not match' });
+                }
+                
+                if (errors.length > 0) {
+                    errors.forEach(error => {
+                        const errorField = document.getElementById(`register-${error.field}-error`);
+                        if (errorField) {
+                            errorField.textContent = error.message;
+                            errorField.style.display = 'block';
+                        }
+                    });
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = registerForm.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+                
+                try {
+                    // Wait for authService to be ready
+                    if (typeof authService === 'undefined') {
+                        await new Promise((resolve, reject) => {
+                            const checkAuthService = setInterval(() => {
+                                if (typeof authService !== 'undefined') {
+                                    clearInterval(checkAuthService);
+                                    resolve();
+                                }
+                            }, 100);
+                            
+                            // Timeout after 10 seconds
+                            setTimeout(() => {
+                                clearInterval(checkAuthService);
+                                reject(new Error('Authentication service is not available. Please refresh the page.'));
+                            }, 10000);
+                        });
+                    }
+                    
+                    // Call Firebase authentication
+                    const { success, error, user } = await authService.register(email, password, { name });
+                    
+                    if (!success) {
+                        throw new Error(error || 'Registration failed. Please try again.');
+                    }
+                    
+                    // Send email verification
+                    await user.sendEmailVerification();
+                    
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'alert alert-success';
+                    successMsg.textContent = 'Registration successful! Please check your email to verify your account.';
+                    registerForm.insertBefore(successMsg, registerForm.firstChild);
+                    
+                    // Reset form
+                    registerForm.reset();
+                    
+                    // Switch to login tab after a short delay
+                    setTimeout(() => {
+                        switchTab('login');
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    
+                    // Handle specific error cases
+                    let errorMessage = error.message || 'An error occurred during registration';
+                    
+                    // Firebase Auth error codes
+                    if (error.code) {
+                        switch (error.code) {
+                            case 'auth/email-already-in-use':
+                                errorMessage = 'An account already exists with this email address.';
+                                break;
+                            case 'auth/weak-password':
+                                errorMessage = 'The password is too weak. Please use a stronger password.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = 'Email/password accounts are not enabled for this project.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = 'Network error. Please check your internet connection and try again.';
+                                break;
+                        }
+                    }
+                    
+                    // Show error message
+                    const errorElement = document.getElementById('register-error');
+                    if (errorElement) {
+                        errorElement.textContent = errorMessage;
+                        errorElement.style.display = 'block';
+                    }
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            });
+            
+            // Social login handlers
+            async function handleSocialLogin() {
+                try {
+                    // Check if authService is available
+                    if (typeof authService === 'undefined') {
+                        throw new Error('Authentication service is not available');
+                    }
+
+                    // Get provider type from button
+                    const provider = this.getAttribute('data-provider');
+                    
+                    // Handle different providers
+                    switch (provider) {
+                        case 'google':
+                            await authService.signInWithGoogle();
+                            break;
+                        case 'apple':
+                            await authService.signInWithApple();
+                            break;
+                        default:
+                            throw new Error('Unsupported social login provider');
+                    }
+
+                    // Check for redirect URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectUrl = urlParams.get('redirect') || '/';
+                    
+                    // Redirect after successful login
+                    window.location.href = redirectUrl;
+                    
+                } catch (error) {
+                    console.error('Social login error:', error);
+                    showError('login-error', error.message || 'Social login failed. Please try again.');
+                }
+            }
+
+            // Add event listeners to social login buttons
+            document.querySelectorAll('.btn-social').forEach(button => {
+                button.addEventListener('click', handleSocialLogin);
+            });
+            
+            // Check if redirected from checkout
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('redirect') === 'checkout') {
+                // Show a message or highlight the login form
+                console.log('Redirected from checkout');
+            }
+        });
+    </script>
+</body>
+</html>

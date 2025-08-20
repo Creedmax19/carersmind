@@ -1,0 +1,16 @@
+[Unit]
+Description=CarersMind API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/carersmind-api
+Environment=NODE_ENV=production
+Environment=PORT=5002
+ExecStart=/var/www/carersmind-api/start.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

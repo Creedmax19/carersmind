@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Cancelled - CarersMind</title>
+    <meta name="description" content="Your payment was cancelled. You can try again or return to shopping.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="./images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon-16x16.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Meta tags for social sharing -->
+    <meta property="og:title" content="Payment Cancelled - CarersMind">
+    <meta property="og:description" content="Your payment was cancelled. You can try again or return to shopping.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carersmind.co.uk/payment-cancel.html">
+    <meta property="og:image" content="https://carersmind.co.uk/images/og-image.jpg">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Payment Cancelled - CarersMind">
+    <meta name="twitter:description" content="Your payment was cancelled. You can try again or return to shopping.">
+    <meta name="twitter:image" content="https://carersmind.co.uk/images/og-image.jpg">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="./images/logo.png" alt="CarersMind Logo" class="logo">
+                    <span class="brand-text">CarersMind</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#services">Services</a>
+                <a href="index.html#store">Store</a>
+                <a href="get-help.html">Get Help</a>
+                <a href="login.html" class="login-btn">Login</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="payment-cancel-container">
+                <div class="cancel-card">
+                    <div class="cancel-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    
+                    <h1 class="cancel-title">Payment Cancelled</h1>
+                    <p class="cancel-message">Your payment was cancelled. No charges were made to your account.</p>
+                    
+                    <div class="cart-info">
+                        <h3>Your cart is still waiting</h3>
+                        <p>Your items are still in your cart and ready for checkout when you're ready.</p>
+                        <div class="cart-summary" id="cartSummary">
+                            <!-- Cart summary will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="index.html#store" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i>
+                            Return to Store
+                        </a>
+                        <a href="index.html" class="btn btn-secondary">
+                            <i class="fas fa-home"></i>
+                            Return Home
+                        </a>
+                    </div>
+                    
+                    <div class="help-info">
+                        <h3>Need help with checkout?</h3>
+                        <ul>
+                            <li><i class="fas fa-credit-card"></i> Check that your card details are correct</li>
+                            <li><i class="fas fa-shield-alt"></i> Ensure your bank allows online payments</li>
+                            <li><i class="fas fa-envelope"></i> Contact us at <a href="mailto:support@carersmind.co.uk">support@carersmind.co.uk</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CarersMind</h3>
+                    <p>Supporting the mental health and wellbeing of unpaid carers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="get-help.html">Get Help</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>Email: info@carersmind.co.uk</p>
+                    <p>Phone: 0800 123 4567</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CarersMind CIC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./js/app-config.js"></script>
+    <script src="./js/firebase-config.js"></script>
+    <script src="./js/firebase-auth.js"></script>
+    <script src="./js/main.js"></script>
+    
+    <script>
+        // Handle mobile navigation
+        document.querySelector('.nav-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Display cart summary if available
+        function displayCartSummary() {
+            const cartSummary = document.getElementById('cartSummary');
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            
+            if (cart.length === 0) {
+                cartSummary.innerHTML = '<p>Your cart is empty.</p>';
+                return;
+            }
+            
+            let total = 0;
+            const itemsHtml = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="cart-item">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-quantity">x${item.quantity}</span>
+                        <span class="item-price">£${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            cartSummary.innerHTML = `
+                ${itemsHtml}
+                <div class="cart-total">
+                    <strong>Total: £${total.toFixed(2)}</strong>
+                </div>
+            `;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCartSummary();
+        });
+    </script>
+</body>
+</html>

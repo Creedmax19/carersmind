@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Integration Tests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .log { background: #f5f5f5; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: monospace; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h1>Firebase Integration Tests</h1>
+    
+    <div class="test">
+        <h2>Authentication</h2>
+        <button onclick="testAuth()">Test Authentication</button>
+        <button onclick="testSignOut()">Sign Out</button>
+        <div id="authStatus">Not authenticated</div>
+        <div class="log" id="authLog"></div>
+    </div>
+    
+    <div class="test">
+        <h2>Firestore</h2>
+        <button onclick="testFirestore()">Test Firestore</button>
+        <div class="log" id="firestoreLog"></div>
+    </div>
+    
+    <div class="test">
+        <h2>Order Service</h2>
+        <button onclick="testOrderService()">Test Order Service</button>
+        <div class="log" id="orderLog"></div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Order Service -->
+    <script src="js/order-service.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            const authStatus = document.getElementById('authStatus');
+            if (user) {
+                authStatus.innerHTML = `Logged in as: ${user.email}`;
+            } else {
+                authStatus.textContent = 'Not authenticated';
+            }
+        });
+        
+        // Test Authentication
+        async function testAuth() {
+            const email = 'test@example.com';
+            const password = 'password123';
+            
+            try {
+                // Try to sign in
+                await auth.signInWithEmailAndPassword(email, password);
+                log('auth', 'Signed in successfully', 'success');
+            } catch (error) {
+                log('auth', `Sign in error: ${error.message}`, 'error');
+                
+                // If sign in fails, try to create user
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    log('auth', 'Created and signed in new user', 'success');
+                } catch (signUpError) {
+                    log('auth', `Sign up error: ${signUpError.message}`, 'error');
+                }
+            }
+        }
+        
+        // Test Sign Out
+        async function testSignOut() {
+            try {
+                await auth.signOut();
+                log('auth', 'Signed out successfully', 'success');
+            } catch (error) {
+                log('auth', `Sign out error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test Firestore
+        async function testFirestore() {
+            try {
+                const testData = {
+                    message: 'Hello, Firestore!',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const docRef = await db.collection('test').add(testData);
+                log('firestore', `Document written with ID: ${docRef.id}`, 'success');
+                
+                // Read it back
+                const doc = await docRef.get();
+                log('firestore', `Document data: ${JSON.stringify(doc.data())}`, 'success');
+                
+                // Clean up
+                await docRef.delete();
+                log('firestore', 'Test document deleted', 'success');
+                
+            } catch (error) {
+                log('firestore', `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test Order Service
+        async function testOrderService() {
+            try {
+                const testCart = [
+                    { id: 'test1', name: 'Test Product', price: 9.99, quantity: 2 }
+                ];
+                
+                const shippingInfo = {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    address: '123 Test St',
+                    city: 'Test City',
+                    postalCode: '12345',
+                    country: 'Test Country'
+                };
+                
+                const result = await orderService.processPayment(testCart, { shipping: shippingInfo });
+                log('order', `Order created: ${result.orderId}`, 'success');
+                
+                const orders = await orderService.getUserOrders();
+                log('order', `User orders: ${orders.length} found`, 'success');
+                
+            } catch (error) {
+                log('order', `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Helper function to log messages
+        function log(area, message, type = 'info') {
+            const logElement = document.getElementById(`${area}Log`);
+            if (!logElement) return;
+            
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+    </script>
+</body>
+</html>

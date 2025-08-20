@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Help - CarersMind</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #166088;
+            --primary-light: #e8f2ff;
+            --secondary: #4fc3f7;
+            --accent: #ff6b6b;
+            --success: #51cf66;
+            --warning: #ffd43b;
+            --danger: #ff6b6b;
+            --text: #2d3748;
+            --text-light: #718096;
+            --text-lighter: #a0aec0;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: linear-gradient(135deg, var(--bg) 0%, #edf2f7 100%);
+            min-height: 100vh;
+        }
+        
+        .help-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        
+        .back-button:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+        
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .page-header p {
+            color: var(--text-light);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+        
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .help-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .help-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .help-section:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .help-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .help-section h2 i {
+            font-size: 1.75rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+        }
+        
+        .help-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .help-section h3 i {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .help-section p {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .help-section ul {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .help-section li {
+            position: relative;
+            padding: 1rem 0 1rem 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        
+        .help-section li:last-child {
+            border-bottom: none;
+        }
+        
+        .help-section li:hover {
+            background: var(--primary-light);
+            margin-left: -0.5rem;
+            padding-left: 2.5rem;
+            border-radius: 8px;
+        }
+        
+        .help-section li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 1rem;
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: var(--success);
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .emergency {
+            border: 2px solid var(--danger);
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+        }
+        
+        .emergency::before {
+            background: linear-gradient(90deg, var(--danger) 0%, #ff8a8a 100%);
+        }
+        
+        .emergency h2 i {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .emergency h3 {
+            color: var(--danger);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #ff5252 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #e8f2ff 100%);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .contact-info h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .contact-info p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .resource-links {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .resource-links h3 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .resource-item {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--bg);
+        }
+        
+        .resource-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+        
+        .resource-item i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .resource-item h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .resource-item p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .resource-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .resource-item a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .help-container {
+                padding: 1rem;
+            }
+            
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .help-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .help-section {
+                padding: 2rem;
+            }
+            
+            .contact-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .page-header p {
+                font-size: 1.1rem;
+            }
+            
+            .help-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="help-container">
+        <a href="/index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        
+        <header class="page-header">
+            <h1>Get Help & Support</h1>
+            <p>You're not alone. Find the support, resources, and guidance you need to navigate your caregiving journey with confidence and resilience.</p>
+        </header>
+        
+        <div class="help-grid">
+            <section class="help-section">
+                <h2><i class="fas fa-heart"></i> Mental Health & Wellbeing</h2>
+                <p>Your mental health matters. Discover practical strategies to maintain your wellbeing while caring for others.</p>
+                
+                <h3><i class="fas fa-lightbulb"></i> Daily Wellness Practices</h3>
+                <ul>
+                    <li><strong>Mindful Moments:</strong> Take 5-minute breathing breaks throughout your day</li>
+                    <li><strong>Gratitude Practice:</strong> Write down 3 things you're thankful for each morning</li>
+                    <li><strong>Boundary Setting:</strong> Learn to say no without guilt when you need rest</li>
+                    <li><strong>Emotional Check-ins:</strong> Regularly assess how you're feeling</li>
+                </ul>
+                
+                <div style="margin-top: 2rem;">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Join Our Support Community
+                    </a>
+                </div>
+            </section>
+
+            <section class="help-section emergency">
+                <h2><i class="fas fa-exclamation-triangle"></i> Crisis Support</h2>
+                <p>If you're experiencing a mental health crisis or feeling unsafe, help is available 24/7.</p>
+                
+                <div style="margin: 2rem 0;">
+                    <a href="tel:999" class="btn btn-danger" style="width: 100%; margin-bottom: 1rem;">
+                        <i class="fas fa-phone-alt"></i> Emergency: Call 999
+                    </a>
+                    <p style="font-size: 0.9rem; color: var(--text-light); text-align: center; margin-top: 0.5rem;">
+                        For immediate danger to life or medical emergencies
+                    </p>
+                </div>
+                
+                <h3><i class="fas fa-clock"></i> 24/7 Mental Health Support</h3>
+                <ul>
+                    <li><strong>Samaritans:</strong> <a href="tel:116123">116 123</a> (free, confidential)</li>
+                    <li><strong>Shout Crisis Text:</strong> Text SHOUT to <a href="sms:85258">85258</a></li>
+                    <li><strong>Mind Infoline:</strong> <a href="tel:03001233393">0300 123 3393</a></li>
+                </ul>
+                
+                <h3><i class="fas fa-hands-helping"></i> Carer-Specific Support</h3>
+                <ul>
+                    <li><strong>Carers UK:</strong> <a href="tel:08088087777">0808 808 7777</a> (Mon-Fri, 9am-6pm)</li>
+                    <li><strong>Carers Trust:</strong> <a href="tel:03002022202">0300 020 2202</a></li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h2><i class="fas fa-hands-helping"></i> Self-Care Strategies</h2>
+                <p>Prioritizing your own needs isn't selfish—it's essential for sustainable caregiving.</p>
+                
+                <h3><i class="fas fa-bed"></i> Physical Wellbeing</h3>
+                <ul>
+                    <li><strong>Sleep Hygiene:</strong> Aim for 7-9 hours of quality sleep each night</li>
+                    <li><strong>Movement Matters:</strong> Even 10-minute walks can boost your mood</li>
+                    <li><strong>Nutrition:</strong> Fuel your body with balanced, nourishing meals</li>
+                    <li><strong>Hydration:</strong> Keep a water bottle nearby and stay hydrated</li>
+                </ul>
+                
+                <h3><i class="fas fa-brain"></i> Emotional Self-Care</h3>
+                <ul>
+                    <li><strong>Journaling:</strong> Write about your feelings and experiences</li>
+                    <li><strong>Creative Expression:</strong> Try art, music, or writing as outlets</li>
+                    <li><strong>Social Connection:</strong> Maintain relationships outside of caregiving</li>
+                    <li><strong>Professional Support:</strong> Consider therapy or counseling</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h2><i class="fas fa-tools"></i> Practical Support</h2>
+                <p>Get help with the day-to-day challenges of caregiving.</p>
+                
+                <h3><i class="fas fa-calendar"></i> Time Management</h3>
+                <ul>
+                    <li><strong>Routine Building:</strong> Create predictable daily schedules</li>
+                    <li><strong>Task Prioritization:</strong> Focus on what's most important first</li>
+                    <li><strong>Delegation:</strong> Ask for help from family and friends</li>
+                    <li><strong>Technology:</strong> Use apps and tools to stay organized</li>
+                </ul>
+                
+                <h3><i class="fas fa-info-circle"></i> Information & Resources</h3>
+                <ul>
+                    <li><strong>Legal Rights:</strong> Understand your rights as a carer</li>
+                    <li><strong>Financial Support:</strong> Access available benefits and grants</li>
+                    <li><strong>Local Services:</strong> Find support in your community</li>
+                    <li><strong>Training:</strong> Learn new skills for better care</li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="resource-links">
+            <h3>Additional Resources & Organizations</h3>
+            <div class="resource-grid">
+                <div class="resource-item">
+                    <i class="fas fa-book"></i>
+                    <h4>Carers UK</h4>
+                    <p>Comprehensive support and information for carers</p>
+                    <a href="https://www.carersuk.org" target="_blank">Visit Website</a>
+                </div>
+                
+                <div class="resource-item">
+                    <i class="fas fa-hands-helping"></i>
+                    <h4>Carers Trust</h4>
+                    <p>Local support services and networks</p>
+                    <a href="https://carers.org" target="_blank">Visit Website</a>
+                </div>
+                
+                <div class="resource-item">
+                    <i class="fas fa-brain"></i>
+                    <h4>Mind</h4>
+                    <p>Mental health information and support</p>
+                    <a href="https://www.mind.org.uk" target="_blank">Visit Website</a>
+                </div>
+                
+                <div class="resource-item">
+                    <i class="fas fa-phone"></i>
+                    <h4>NHS Carers Direct</h4>
+                    <p>Health and social care information</p>
+                    <a href="https://www.nhs.uk/conditions/social-care-and-support-guide/carers/" target="_blank">Visit Website</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <h3>Need Personalized Support?</h3>
+            <p>Our dedicated team is here to help you find the right resources and connect you with the support you need.</p>
+            <div class="contact-buttons">
+                <a href="mailto:infocontact@carersmind.co.uk" class="btn btn-outline">
+                    <i class="fas fa-envelope"></i> Email Our Team
+                </a>
+                <a href="tel:07950887950" class="btn btn-primary">
+                    <i class="fas fa-phone-alt"></i> Call Support Line
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
