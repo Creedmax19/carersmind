@@ -1,11 +1,13 @@
+// Stripe Service for handling payments
 class StripeService {
     constructor() {
-        // Initialize with your publishable key (replace with your test key)
-        if (typeof Stripe !== 'function') {
-            throw new Error('Stripe.js not loaded. Ensure https://js.stripe.com/v3/ is included once.');
+        // Initialize with global Stripe configuration
+        if (window.STRIPE_PUBLISHABLE_KEY) {
+            this.stripe = Stripe(window.STRIPE_PUBLISHABLE_KEY);
+            this.baseUrl = window.API_BASE_URL || '/api/v1';
+        } else {
+            console.error('Stripe publishable key not found');
         }
-        this.stripe = Stripe('pk_test_51RuCo4AbgyHA5XcoyQjQ054R8jfbfuSELZacUuh2cTQgrBbZxZdTMXSAazIy8dpxcIGB987BSsPQ33woGtTXIpYE00gIMx8N8J');
-        this.baseUrl = 'https://us-central1-carersmind-cic.cloudfunctions.net'; // Update with your Firebase project ID
     }
 
     async createCheckoutSession(cartItems, successUrl, cancelUrl, customerEmail = '') {

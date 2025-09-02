@@ -3,10 +3,9 @@
 (function() {
     'use strict';
     
-    // Detect environment
+    // Detect environment - production-focused
     const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1' ||
-                       window.location.hostname.includes('vercel.app');
+                       window.location.hostname === '127.0.0.1';
     
     // Production URLs
     const PROD_API_URL = 'https://api.carersmind.co.uk/api/v1';

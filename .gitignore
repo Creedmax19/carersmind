@@ -5,6 +5,11 @@ node_modules/
 .env
 .env.local
 .env.*.local
+*.env
+!*.env.example
+!*.env.sample
+/config/*.env
+/backup_config/*.env
 
 # Build output
 /dist

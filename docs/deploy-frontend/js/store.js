@@ -95,11 +95,6 @@ document.addEventListener('firebaseServicesReady', function() {
         
         console.log('Store initialized with', products.length, 'products');
         
-        // Run test if on store page
-        if (document.getElementById('store')) {
-            // Small delay to ensure everything is loaded
-            setTimeout(testStore, 1000);
-        }
     } catch (error) {
         console.error('Error initializing store:', error);
     }
@@ -151,11 +146,7 @@ function setupEventListeners() {
                 addToCart(productId, addToCartBtn);
             }
         }
-    });
-
-    // Cart quantity controls and remove buttons - using event delegation
-    document.addEventListener('click', (e) => {
-        // Handle quantity buttons
+        // Cart quantity controls and remove buttons - using event delegation
         const quantityBtn = e.target.closest('.quantity-btn');
         if (quantityBtn) {
             e.preventDefault();
@@ -167,7 +158,6 @@ function setupEventListeners() {
             }
             return;
         }
-
         // Handle remove buttons
         const removeBtn = e.target.closest('.remove-from-cart');
         if (removeBtn) {
@@ -179,7 +169,6 @@ function setupEventListeners() {
             }
             return;
         }
-
         // Handle checkout button
         if (e.target.id === 'checkout-button' || e.target.closest('#checkout-button')) {
             e.preventDefault();
@@ -813,7 +802,7 @@ function checkout() {
                 // Fallback to sessionId flow if provided
                 if (data && data.id) {
                     if (typeof Stripe !== 'function') throw new Error('Stripe.js not loaded');
-                    const stripe = Stripe('pk_test_51RuCo4AbgyHA5XcoXa8NWWQm11OsYSetjiQyNoXPohvyzQDwePqaJDPwX9OPgFaK6KgBeDugFwCs67lBpg7hGagS00eyrmVJuc');
+                    const stripe = window.getStripeInstance ? window.getStripeInstance() : Stripe(window.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RuCo4AbgyHA5XcoXa8NWWQm11OsYSetjiQyNoXPohvyzQDwePqaJDPwX9OPgFaK6KgBeDugFwCs67lBpg7hGagS00eyrmVJuc');
                     const result = await stripe.redirectToCheckout({ sessionId: data.id, mode: 'payment' });
                     if (result.error) throw result.error;
                     return;
@@ -888,17 +877,3 @@ function clearCart() {
     saveCart();
     renderCart();
 }
-
-// Test function to verify store is working
-function testStore() {
-    console.log('Testing store functionality...');
-    console.log('Products:', products);
-    
-    // Try to add a test product
-    if (products.length > 0) {
-        console.log('Adding test product to cart:', products[0].name);
-        addToCart(products[0].id);
-    }
-}
-
-// Test function moved to firebaseServicesReady event handler

@@ -42,11 +42,45 @@ class FirebaseAuthService {
             if (userDisplay) {
                 userDisplay.textContent = this.user.email;
             }
+
+            // Redirect logic after successful login/registration
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            if (this.user && this.user.uid) {
+                const userDocRef = this.db.collection('users').doc(this.user.uid);
+                userDocRef.get().then(doc => {
+                    if (doc.exists && doc.data().role === 'admin') {
+                        // If admin, redirect to admin dashboard
+                        if (!window.location.pathname.startsWith('/admin/')) {
+                            window.location.href = '/admin/dashboard.html';
+                        }
+                    } else {
+                        // If regular user or no specific role, redirect as normal
+                        if (redirect) {
+                            window.location.href = decodeURIComponent(redirect);
+                        } else if (window.location.pathname.startsWith('/admin/')) {
+                            // If a non-admin user somehow lands on an admin page, redirect them home
+                            window.location.href = '/';
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Error fetching user role:', error);
+                    // Fallback redirect in case of error
+                    if (redirect) {
+                        window.location.href = decodeURIComponent(redirect);
+                    } else if (window.location.pathname.startsWith('/admin/')) {
+                        window.location.href = '/';
+                    }
+                });
+            } else if (redirect) {
+                window.location.href = decodeURIComponent(redirect);
+            } else if (window.location.pathname.startsWith('/admin/')) {
+                window.location.href = '/';
+            }
         } else {
-            authElements.forEach(el => el.style.display = 'none');
-            unauthElements.forEach(el => el.style.display = 'block');
-            if (userDisplay) {
-                userDisplay.textContent = '';
+            // If logged out and on an auth-required page, redirect to login
+            if (window.location.pathname.includes('admin/dashboard.html')) {
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
             }
         }
     }
@@ -54,16 +88,27 @@ class FirebaseAuthService {
     // Register a new user with email and password
     async register(email, password, userData) {
         try {
-            const { user } = await this.auth.createUserWithEmailAndPassword(email, password);
+            console.log('Registration attempt with email:', email);
             
-            // Save additional user data to Firestore
-            await this.db.collection('users').doc(user.uid).set({
-                email: user.email,
+            const { user } = await this.auth.createUserWithEmailAndPassword(email, password);
+            console.log('User created in Firebase Auth:', user);
+            console.log('Firebase Auth email:', user.email);
+            
+            // Ensure email consistency - use the email from Firebase Auth
+            const userDocData = {
+                email: user.email, // Use Firebase Auth email for consistency
                 displayName: userData.name || '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 role: 'user',
                 ...userData
-            });
+            };
+            
+            console.log('Storing user data in Firestore:', userDocData);
+            
+            // Save additional user data to Firestore
+            await this.db.collection('users').doc(user.uid).set(userDocData);
+            
+            console.log('User document saved to Firestore successfully');
 
             // Send email verification
             await user.sendEmailVerification();
@@ -75,13 +120,61 @@ class FirebaseAuthService {
         }
     }
 
+    // Check if user is admin
+    async isAdmin(user) {
+        try {
+            if (!user) return false;
+            
+            // Check if user has admin role in Firestore
+            const userDoc = await this.db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                return userData.role === 'admin';
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+            return false;
+        }
+    }
+
     // Login with email and password
     async login(email, password) {
         try {
             const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
+            const isAdmin = await this.isAdmin(userCredential.user);
+
+            // Redirect logic after successful login
+            if (isAdmin) {
+                window.location.href = '/admin/dashboard.html';
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect');
+                
+                // Validate redirect URL to prevent loops and security issues
+                if (redirect && redirect !== '/login.html' && redirect !== '/user-profile.html') {
+                    try {
+                        const redirectUrl = decodeURIComponent(redirect);
+                        // Only allow redirects to safe paths
+                        if (redirectUrl.startsWith('/') && !redirectUrl.includes('..')) {
+                            console.log('Redirecting to:', redirectUrl);
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+                    } catch (error) {
+                        console.warn('Invalid redirect URL, using fallback:', error);
+                    }
+                }
+                
+                // Fallback redirects
+                console.log('Using fallback redirect to user profile');
+                window.location.href = '/user-profile.html';
+            }
+            
             return { 
                 success: true, 
-                user: userCredential.user 
+                user: userCredential.user,
+                isAdmin: isAdmin
             };
         } catch (error) {
             console.error('Login error:', error);

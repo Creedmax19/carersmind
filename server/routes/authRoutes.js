@@ -1,9 +1,11 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
-const supabase = require('../config/supabaseClient');
+const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
+const db = getFirestore();
 
 // @route   POST api/auth/register
 // @desc    Register a new user
@@ -20,29 +22,24 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
-
     const { name, email, password, role } = req.body;
-
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Create user in Firebase Auth
+      const userRecord = await admin.auth().createUser({
         email,
         password,
-        options: {
-          data: {
-            name,
-            role: role || 'user'
-          }
-        }
+        displayName: name,
       });
-
-      if (error) {
-        return res.status(400).json({ success: false, error: error.message });
-      }
-
-      res.status(201).json({ success: true, data });
-
+      // Store user profile in Firestore
+      await db.collection('users').doc(userRecord.uid).set({
+        name,
+        email,
+        role: role || 'user',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      res.status(201).json({ success: true, uid: userRecord.uid, email: userRecord.email, name });
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Server error' });
+      res.status(500).json({ success: false, error: err.message });
     }
   }
 );
@@ -61,23 +58,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
-
     const { email, password } = req.body;
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        return res.status(400).json({ success: false, error: 'Invalid credentials' });
-      }
-
-      res.status(200).json({ success: true, data });
-
+      // Firebase Auth does not support password login server-side; client should handle login and send ID token
+      return res.status(400).json({ success: false, error: 'Login should be handled on the client using Firebase Auth. Send the ID token to the backend for protected routes.' });
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Server error' });
+      res.status(500).json({ success: false, error: err.message });
     }
   }
 );
@@ -87,19 +73,7 @@ router.post(
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    // The user object is attached to the request in the 'protect' middleware
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', req.user.id)
-      .single();
-
-    if (error) {
-      return res.status(404).json({ success: false, error: 'User not found' });
-    }
-
-    res.status(200).json({ success: true, data: profile });
-
+    res.status(200).json({ success: true, data: req.user });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
@@ -108,19 +82,9 @@ router.get('/me', protect, async (req, res) => {
 // @route   GET api/auth/logout
 // @desc    Logout user
 // @access  Private
-router.get('/logout', protect, async (req, res) => {
-  try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      return res.status(500).json({ success: false, error: 'Logout failed' });
-    }
-
-    res.status(200).json({ success: true, data: {} });
-
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Server Error' });
-  }
+router.get('/logout', (req, res) => {
+  // Logout is handled client-side by clearing the Firebase Auth session/token
+  res.status(200).json({ success: true, message: 'Logout handled on client. Just clear the token.' });
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 // Configuration
-const API_BASE_URL = '/api/v1';
-const STRIPE_PUBLIC_KEY = 'pk_test_51RuCo4AbgyHA5XcoyQjQ054R8jfbfuSELZacUuh2cTQgrBbZxZdTMXSAazIy8dpxcIGB987BSsPQ33woGtTXIpYE00gIMx8N8J'; // Replace with your actual publishable key
+const API_BASE_URL = window.API_BASE_URL || '/api/v1';
+// Payment handling with Stripe
+const STRIPE_PUBLIC_KEY = window.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RuCo4AbgyHA5XcoyQjQ054R8jfbfuSELZacUuh2cTQgrBbZxZdTMXSAazIy8dpxcIGB987BSsPQ33woGtTXIpYE00gIMx8N8J'; // Uses global config or fallback
 const stripe = Stripe(STRIPE_PUBLIC_KEY);
 
 // DOM Elements

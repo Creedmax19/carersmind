@@ -385,434 +385,80 @@
     <!-- Load app configuration and services -->
     <script src="/js/app-config.js"></script>
     <script src="/js/stripe-config.js"></script>
-    <script>
-        // Wait for Firebase to be ready
-        function waitForFirebase() {
-            return new Promise((resolve, reject) => {
-                const startedAt = Date.now();
-                const checkFirebase = setInterval(() => {
-                    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
-                        clearInterval(checkFirebase);
-                        resolve();
-                    } else if (Date.now() - startedAt > 10000) {
-                        clearInterval(checkFirebase);
-                        reject(new Error('Firebase failed to initialize'));
-                    }
-                }, 100);
-            });
-        }
-        // Helper to ensure Stripe is present
-        function checkStripeLoaded() {
-            return new Promise(function(resolve, reject) {
-                if (typeof Stripe === 'function') return resolve(true);
-                var start = Date.now();
-                var timer = setInterval(function() {
-                    if (typeof Stripe === 'function') {
-                        clearInterval(timer);
-                        resolve(true);
-                    } else if (Date.now() - start > 10000) {
-                        clearInterval(timer);
-                        reject(new Error('Stripe.js failed to load'));
-                    }
-                }, 100);
-            });
-        }
-    </script>
-    <!-- Load Firebase config and services -->
+       
+       <!-- Load Firebase configuration -->
     <script src="/js/firebase-config.js"></script>
+       
+             <!-- Load Firebase services -->
     <script src="/js/firebase-auth.js"></script>
     <script src="/js/order-service.js"></script>
     <script src="/js/init-services.js"></script>
+             
     <script>
-        // Initialize core services once DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof initializeServices === 'function') {
-                initializeServices().catch(function(err) {
-                    console.error('Error initializing services:', err);
-                });
-            }
-        });
-        // checkStripeLoaded defined earlier
-    </script>
-    
-    
-    
-    <!-- Initialize everything when DOM is loaded -->
-    <script>
-        // Global initialization state
-        let isInitialized = false;
-
-        // Check if we're in a private/incognito window
-        function checkPrivateMode() {
-            return !window.indexedDB || !window.localStorage;
-        }
-
-        // Show warning for private/incognito mode
-        function showPrivateModeWarning() {
-            const warningElement = document.createElement('div');
-            warningElement.style.background = '#fff3e0';
-            warningElement.style.color = '#e65100';
-            warningElement.style.padding = '15px';
-            warningElement.style.margin = '10px';
-            warningElement.style.borderRadius = '4px';
-            warningElement.style.border = '1px solid #ffb74d';
-            warningElement.innerHTML = `
-                <strong>Warning:</strong> Private/incognito mode detected. 
-                Some features may not work correctly. For the best experience, 
-                please use a regular browser window.
-            `;
-            document.body.insertBefore(warningElement, document.body.firstChild);
-        }
-
-        // Show error message to user
-        function showError(message, details = '') {
-            const errorElement = document.createElement('div');
-            errorElement.style.background = '#ffebee';
-            errorElement.style.color = '#c62828';
-            errorElement.style.padding = '15px';
-            errorElement.style.margin = '10px';
-            errorElement.style.borderRadius = '4px';
-            errorElement.style.border = '1px solid #ef9a9a';
-            errorElement.innerHTML = `
-                <strong>Error:</strong> ${message}
-                ${details ? `<div style="font-size: 0.9em; margin-top: 5px;">${details}</div>` : ''}
-                <div style="margin-top: 10px;">
-                    <button onclick="window.location.reload()" style="
-                        background: #4a6fa5;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;">
-                        Refresh Page
-                    </button>
-                </div>
-            `;
-            document.body.insertBefore(errorElement, document.body.firstChild);
-        }
+              // Production-ready authentication initialization with form switching preserved
+              async function initializeLoginPage() {
+                  console.log('Initializing login page...');
 
         // Wait for Firebase services to be ready
-        async function waitForFirebaseServices() {
             try {
-                // Wait for Firebase to be available
-                await waitForFirebase();
-                
-                // Wait for Firebase services to be initialized
+                      // Wait for init-services to complete
                 await new Promise((resolve, reject) => {
+                          const maxWait = 15000; // 15 second timeout
+                          const startTime = Date.now();
+                          
+                          const checkServices = () => {
                     if (window.authService && window.authService.auth) {
+                                  console.log('AuthService ready');
                         resolve();
                         return;
                     }
 
-                    const checkInterval = setInterval(() => {
-                        if (window.authService && window.authService.auth) {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100);
-
-                    // Set timeout to prevent hanging
-                    setTimeout(() => {
-                        clearInterval(checkInterval);
-                        reject(new Error('Authentication service is not available'));
-                    }, 10000);
-                });
-
-                // Check if all required services are available
-                if (!window.firebaseAuth || !window.firestore || !window.firebaseStorage) {
-                    throw new Error('Required Firebase services are missing');
-                }
-
-                console.log('Firebase services initialized successfully');
-                isInitialized = true;
-                return true;
-            } catch (error) {
-                console.error('Failed to initialize Firebase services:', error);
-                throw error;
-            }
-        }
-
-        // Listen for Firebase initialization event
-        document.addEventListener('firebaseServicesReady', async (event) => {
-            try {
-                if (!isInitialized) {
-                    await waitForFirebaseServices();
-                    
-                    // Initialize auth listener if the function exists
-                    if (typeof initAuthListener === 'function') {
-                        initAuthListener();
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to complete initialization:', error);
-                showError('Failed to initialize application', error.message);
-            }
-        });
-
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                console.log('DOM loaded, starting initialization...');
-                
-                // Show warning if in private mode but continue
-                if (checkPrivateMode()) {
-                    showPrivateModeWarning();
-                }
-
-                // Check if Firebase SDK is loaded
-                if (typeof firebase === 'undefined') {
-                    console.error('Firebase SDK not loaded');
-                    throw new Error('Firebase SDK not loaded. Please check your network connection.');
-                }
-
-                // Wait for Firebase initialization
-                await waitForFirebaseServices();
-
-                // Check if auth service is available
-                if (!window.authService) {
-                    console.error('AuthService not available after initialization');
-                    throw new Error('Authentication service failed to initialize');
-                }
-
-                // Check for Stripe.js
-                await checkStripeLoaded();
+                              if (Date.now() - startTime > maxWait) {
+                                  reject(new Error('Authentication service timeout'));
+                                  return;
+                              }
+                              
+                              setTimeout(checkServices, 100);
+                          };
+                          
+                          checkServices();
+                      });
 
                 console.log('All services initialized successfully');
-                console.log('Firebase auth service:', window.authService);
             } catch (error) {
-                console.error('Initialization failed:', error);
-                showError('Failed to initialize application', error.message);
-            }
-        });
-    </script>
-    
-    <script>
-        // Wait for Firebase services to be ready
-        function initAuthListener() {
-            if (window.authService) {
-                // Check if user is already logged in
-                firebase.auth().onAuthStateChanged(async (user) => {
-                    if (user) {
-                        console.log('User logged in:', user.uid);
-                        const redirectPath = localStorage.getItem('redirectAfterLogin');
-                        if (redirectPath === '/stripe-checkout') {
-                            try {
-                                // Get Stripe instance
-                                const stripe = Stripe('pk_test_51RuCo4AbgyHA5XcoXa8NWWQm11OsYSetjiQyNoXPohvyzQDwePqaJDPwX9OPgFaK6KgBeDugFwCs67lBpg7hGagS00eyrmVJuc');
-
-                                // Validate cart items
-                                const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-                                if (cartItems.length === 0) {
-                                    throw new Error('Cart is empty');
-                                }
-
-                                // Product catalog with price IDs
-                                const products = [
-                                    {
-                                        id: 7,
-                                        name: "You Matter Mental Health Support Card",
-                                        priceId: 'price_1RvIzyAbgyHA5Xcovgow97xz', // Replace with actual price ID
-                                        price: 4.99,
-                                        image: './images/supportcard.jpg'
-                                    }
-                                    // Add other products with their price IDs as needed
-                                ];
-
-                                // Format items for Stripe
-                                const stripeItems = [];
-                                
-                                for (const item of cartItems) {
-                                    console.log('Processing cart item:', JSON.stringify(item, null, 2));
-                                    
-                                    // Find the product in our catalog
-                                    const product = products.find(p => p.id === item.id);
-                                    if (!product) {
-                                        console.error('Product not found in catalog:', item.id);
-                                        throw new Error(`Product not found: ${item.name || item.id}`);
-                                    }
-                                    
-                                    if (!product.priceId) {
-                                        console.error('Missing priceId for product:', product);
-                                        throw new Error(`Missing price ID for: ${product.name}`);
-                                    }
-                                    
-                                    // Ensure quantity is a valid number, default to 1 if invalid
-                                    let quantity = 1;
-                                    if (item.quantity !== undefined && item.quantity !== null) {
-                                        quantity = parseInt(item.quantity, 10);
-                                        if (isNaN(quantity) || quantity < 1) {
-                                            console.warn(`Invalid quantity (${item.quantity}) for product ${product.id}, using 1`);
-                                            quantity = 1;
-                                        }
-                                    }
-                                    
-                                    stripeItems.push({
-                                        price: product.priceId,
-                                        quantity: quantity
-                                    });
-                                    
-                                    console.log('Added to Stripe items:', {
-                                        name: product.name,
-                                        priceId: product.priceId,
-                                        quantity: quantity
-                                    });
-                                }
-
-                                console.log('Sending to server:', JSON.stringify(stripeItems, null, 2));
-
-                                let response;
-                                if (window.CHECKOUT_MODE === 'sample') {
-                                    // Use sample server: support price IDs and dynamic price_data fallback
-                                    const itemsForSample = [];
-                                    for (const item of cartItems) {
-                                        const product = products.find(p => p.id === item.id) || item;
-                                        const qty = Math.max(1, Number(item.quantity) || 1);
-                                        if (product && product.priceId) {
-                                            itemsForSample.push({ price: product.priceId, quantity: qty });
-                                            continue;
-                                        }
-
-                                        const unitAmount = Math.floor(((product && product.price) ? product.price : Number(item.price) || 0) * 100);
-                                        if (!unitAmount) {
-                                            console.warn('Skipping item with zero/invalid amount', item);
-                                            continue;
-                                        }
-
-                                        if (window.STRIPE_USE_PRODUCTS && product && product.productId) {
-                                            itemsForSample.push({ product: product.productId, unit_amount: unitAmount, currency: 'gbp', quantity: qty });
-                                        } else {
-                                            itemsForSample.push({
-                                                price_data: {
-                                                    currency: 'gbp',
-                                                    unit_amount: unitAmount,
-                                                    product_data: { name: (product && product.name) || item.name || `Item ${item.id}` }
-                                                },
-                                                quantity: qty
-                                            });
-                                        }
-                                    }
-                                    if (itemsForSample.length === 0) throw new Error('No valid items available for checkout.');
-                                    response = await fetch(`${window.STRIPE_SAMPLE_BASE_URL}/create-checkout-session`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ items: itemsForSample, metadata: { userId: user.uid } })
-                                    });
-                                } else {
-                                    // API mode (expects name/amount/quantity/productId)
-                                    const serverItems = cartItems.map((item) => {
-                                        const product = products.find(p => p.id === item.id);
-                                        return {
-                                            name: product ? product.name : (item.name || `Item ${item.id}`),
-                                            amount: product ? product.price : Number(item.price) || 0,
-                                            quantity: Number(item.quantity) || 1,
-                                            productId: product ? product.productId : null
-                                        };
-                                    });
-
-                                    // Acquire Firebase ID token for Authorization header (optional)
-                                    let idToken = '';
-                                    try {
-                                        idToken = await user.getIdToken();
-                                    } catch (e) {
-                                        console.warn('Could not obtain ID token; proceeding without Authorization header');
-                                    }
-
-                                    const apiBase = (window.API_BASE_URL || '/api/v1');
-                                    response = await fetch(`${apiBase}/payments/create-checkout-session`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
-                                        },
-                                        body: JSON.stringify({
-                                            items: serverItems,
-                                            successUrl: `${window.location.origin}/payment-success.html`,
-                                            cancelUrl: `${window.location.origin}/index.html#store`,
-                                            metadata: { userId: user.uid }
-                                        })
-                                    });
-                                }
-
-                                if (!response.ok) {
-                                    const errorData = await response.json().catch(() => ({}));
-                                    throw new Error(errorData.error || `Failed to create checkout session: ${response.status}`);
-                                }
-
-                                const data = await response.json();
-
-                                // If server returns a hosted checkout URL, redirect to it; otherwise fallback to sessionId flow
-                                if ((data && data.success && data.url) || (data && data.url)) {
-                                    window.location.href = data.url;
-                                } else if (data && data.id) {
-                                    const result = await stripe.redirectToCheckout({ sessionId: data.id, mode: 'payment' });
-                                    if (result.error) throw result.error;
-                                } else {
-                                    throw new Error('Unexpected response from checkout session API');
-                                }
-                            } catch (error) {
-                                console.error('Error processing checkout:', error);
-                                alert(error.message || 'An error occurred while processing your payment. Please try again.');
-                                // Fallback to store page
-                                window.location.href = '/index.html#store';
-                            }
-                        } else if (redirectPath) {
-                            localStorage.removeItem('redirectAfterLogin');
-                            // For any non-checkout redirect, go directly
-                            window.location.href = redirectPath;
-                        }    
-                    }
-                });
-            } else {
-                // If authService isn't ready yet, wait a bit and try again
-                setTimeout(initAuthListener, 100);
-            }
-        }
-
-        // Handle redirect after login
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            // Check if redirected from checkout
-            if (urlParams.get('redirect') === 'checkout') {
-                console.log('Redirecting to Stripe checkout after login');
-                // Load cart data from localStorage
-                const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                if (cart.length === 0) {
-                    // If cart is empty, redirect to store
-                    localStorage.setItem('redirectAfterLogin', '/index.html#store');
-                } else {
-                    // If cart has items, redirect to Stripe checkout
-                    localStorage.setItem('redirectAfterLogin', '/stripe-checkout');
-                }
-            }
-            
-            // Start the auth state listener
-            initAuthListener();
-        });
-    </script>
-
-    <script>
-        console.log('Script loaded, adding DOMContentLoaded listener');
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM fully loaded and parsed');
-            // Tab switching
+                      console.error('Service initialization failed:', error);
+                      alert('Failed to initialize authentication services. Please refresh the page.');
+                      return;
+                  }
+                  
+                  // ===== FORM SWITCHING FUNCTIONALITY (PRESERVED) =====
             const tabs = document.querySelectorAll('.auth-tab');
             const forms = document.querySelectorAll('.auth-form');
             const welcomeTitle = document.getElementById('welcome-title');
             const welcomeMessage = document.getElementById('welcome-message');
+                  
+                  console.log('Found tabs:', tabs.length);
+                  console.log('Found forms:', forms.length);
+                  console.log('Welcome title:', welcomeTitle);
+                  console.log('Welcome message:', welcomeMessage);
             
             function updateWelcomeMessage(isLogin) {
+                      if (welcomeTitle && welcomeMessage) {
                 if (isLogin) {
                     welcomeTitle.textContent = 'Welcome Back!';
                     welcomeMessage.textContent = 'Sign in to access your account and continue your journey with us. Your support helps make a difference in the lives of carers.';
                 } else {
                     welcomeTitle.textContent = 'Join Our Community';
                     welcomeMessage.textContent = 'Create an account to access exclusive resources, track your support journey, and connect with other carers.';
+                          }
                 }
             }
             
+                  // Tab switching event listeners
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const tabName = this.getAttribute('data-tab');
+                          console.log('Tab clicked:', tabName);
                     
                     // Update active tab
                     tabs.forEach(t => t.classList.remove('active'));
@@ -823,6 +469,7 @@
                         form.classList.remove('active');
                         if (form.id === `${tabName}-form`) {
                             form.classList.add('active');
+                                  console.log('Form activated:', form.id);
                             // Update welcome message based on active tab
                             updateWelcomeMessage(tabName === 'login');
                         }
@@ -830,49 +477,72 @@
                 });
             });
             
-            // Show register form
-            document.getElementById('show-register').addEventListener('click', function(e) {
+                  // Show register form link
+                  const showRegisterLink = document.getElementById('show-register');
+                  if (showRegisterLink) {
+                      showRegisterLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                document.querySelector('.auth-tab[data-tab="register"]').click();
-            });
-            
-            // Show login form
-            document.getElementById('show-login').addEventListener('click', function(e) {
+                          console.log('Show register link clicked');
+                          const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
+                          if (registerTab) {
+                              registerTab.click();
+                          } else {
+                              console.error('Register tab not found');
+                          }
+                      });
+                  } else {
+                      console.error('Show register link not found');
+                  }
+                  
+                  // Show login form link
+                  const showLoginLink = document.getElementById('show-login');
+                  if (showLoginLink) {
+                      showLoginLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                document.querySelector('.auth-tab[data-tab="login"]').click();
-            });
-            
-            // Form validation
+                          console.log('Show login link clicked');
+                          const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+                          if (loginTab) {
+                              loginTab.click();
+                          } else {
+                              console.error('Login tab not found');
+                          }
+                      });
+                  } else {
+                      console.error('Show login link not found');
+                  }
+                  
+                  // ===== FORM VALIDATION AND SUBMISSION =====
             const loginForm = document.getElementById('login-form');
             const registerForm = document.getElementById('register-form');
             
-            function showError(elementId, message) {
+                  console.log('Login form found:', !!loginForm);
+                  console.log('Register form found:', !!registerForm);
+                  
+                  function displayError(elementId, message) {
                 const errorElement = document.getElementById(elementId);
+                      if (errorElement) {
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
-                return false;
-            }
-            
-            function hideError(elementId) {
-                document.getElementById(elementId).style.display = 'none';
-                return true;
-            }
-            
-            // Debug: Check if loginForm exists
-            console.log('Login form element:', loginForm);
-            
-            // Debug: Check if elements exist
-            console.log('Login email input:', document.getElementById('login-email'));
-            
-            // Forgot password link
-            const forgotPasswordLink = document.getElementById('forgot-password');
+                      }
+                  }
+                  
+                  function clearError(elementId) {
+                      const errorElement = document.getElementById(elementId);
+                      if (errorElement) {
+                          errorElement.textContent = '';
+                          errorElement.style.display = 'none';
+                      }
+                  }
+                  
+                  // ===== FORGOT PASSWORD FUNCTIONALITY =====
+                  const forgotPasswordLink = document.querySelector('.forgot-password');
             if (forgotPasswordLink) {
                 forgotPasswordLink.addEventListener('click', async function(e) {
                     e.preventDefault();
                     const email = prompt('Please enter your email address:');
                     if (email) {
                         try {
-                            await authService.resetPassword(email);
+                                  await window.authService.resetPassword(email);
                             alert('If an account exists with this email, you will receive a password reset link shortly.');
                         } catch (error) {
                             console.error('Password reset error:', error);
@@ -882,316 +552,151 @@
                 });
             }
             
-            // Login form submission
+                  // ===== LOGIN FORM SUBMISSION =====
+                  if (loginForm) {
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                          clearError('login-email-error');
+                          clearError('login-password-error');
                 
                 const email = document.getElementById('login-email').value.trim();
                 const password = document.getElementById('login-password').value;
-                const errorElement = document.getElementById('login-error');
-                
-                // Clear previous errors
-                hideError('login-error');
-                
-                // Basic validation
-                if (!email) {
-                    return showError('login-error', 'Please enter your email address');
-                }
-                
-                if (!password) {
-                    return showError('login-error', 'Please enter your password');
-                }
-                
-                // Show loading state
+                          
+                          let isValid = true;
+                          if (!email) { displayError('login-email-error', 'Email is required'); isValid = false; }
+                          if (!password) { displayError('login-password-error', 'Password is required'); isValid = false; }
+                          if (!isValid) return;
+                          
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
                 
                 try {
-                    // Wait for authService to be available with timeout
-                    if (typeof authService === 'undefined') {
-                        await new Promise((resolve, reject) => {
-                            const checkAuthService = setInterval(() => {
-                                if (typeof authService !== 'undefined') {
-                                    clearInterval(checkAuthService);
-                                    resolve();
-                                }
-                            }, 100);
-                            
-                            // Timeout after 10 seconds
-                            setTimeout(() => {
-                                clearInterval(checkAuthService);
-                                reject(new Error('Authentication service is not available. Please refresh the page.'));
-                            }, 10000);
-                        });
-                    }
-                    
-                    // Check if authService has the login method
-                    if (typeof authService.login !== 'function') {
-                        throw new Error('Login functionality is not available. Please try again later.');
-                    }
-                    
-                    // Attempt to log in
-                    const { success, error, user } = await authService.login(email, password);
+                              const { success, error, user, isAdmin } = await window.authService.login(email, password);
                     
                     if (!success) {
-                        throw new Error(error || 'Failed to sign in. Please check your credentials and try again.');
-                    }
-                    
-                    // Check if email is verified
-                    if (user && !user.emailVerified) {
-                        // Optionally send verification email
-                        await user.sendEmailVerification();
-                        throw new Error('Please verify your email address before logging in. We\'ve sent you a verification email.');
-                    }
-                    
-                    // Successful login - redirect or update UI
-                    console.log('User logged in successfully:', user.uid);
-                    
-                    // Check for redirect URL in URL parameters or localStorage
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const redirectFromParams = urlParams.get('redirect');
-                    const redirectFromStorage = localStorage.getItem('redirectAfterLogin');
-                    const redirectTo = redirectFromParams || redirectFromStorage || '/';
-                    
-                    // Clear the redirect URL from storage
-                    localStorage.removeItem('redirectAfterLogin');
-                    
-                    // Show success message
-                    const successMsg = document.createElement('div');
-                    successMsg.className = 'alert alert-success';
-                    successMsg.textContent = 'Login successful! Redirecting...';
-                    loginForm.prepend(successMsg);
-                    
-                    // Redirect after a short delay
-                    setTimeout(() => {
-                        console.log('Redirecting to:', redirectTo);
-                        window.location.href = redirectTo;
-                    }, 1000);
-                    
+                                  displayError('login-email-error', error || 'Failed to sign in. Please check your credentials and try again.');
+                                  return;
+                              }
+                              
+                              // Redirect based on user role
+                    if (isAdmin) {
+                        window.location.href = '/admin/dashboard.html';
+                              } else {
+                                  window.location.href = '/user-profile.html';
+                              }
                 } catch (error) {
                     console.error('Login error:', error);
-                    
-                    // Handle specific error cases
-                    let errorMessage = error.message || 'Failed to sign in. Please try again.';
-                    
-                    // Firebase Auth error codes (common ones)
-                    if (error.code) {
-                        switch (error.code) {
-                            case 'auth/user-not-found':
-                            case 'auth/wrong-password':
-                                errorMessage = 'Invalid email or password. Please try again.';
-                                break;
-                            case 'auth/too-many-requests':
-                                errorMessage = 'Too many failed login attempts. Please try again later or reset your password.';
-                                break;
-                            case 'auth/user-disabled':
-                                errorMessage = 'This account has been disabled. Please contact support.';
-                                break;
-                            case 'auth/network-request-failed':
-                                errorMessage = 'Network error. Please check your internet connection and try again.';
-                                break;
-                        }
-                    }
-                    
-                    showError('login-error', errorMessage);
-                    
-                    // Re-enable the submit button
+                              displayError('login-email-error', error.message || 'An unexpected error occurred.');
+                          } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
-                    
-                    // Focus on the appropriate field
-                    if (error.code === 'auth/wrong-password') {
-                        document.getElementById('login-password').focus();
-                    } else if (error.code === 'auth/user-not-found') {
-                        document.getElementById('login-email').focus();
-                    }
-                }
-            });
-            
-            // Registration form submission
+                          }
+                      });
+                  }
+                  
+                  // ===== REGISTRATION FORM SUBMISSION =====
+                  if (registerForm) {
             registerForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                          clearError('register-name-error');
+                          clearError('register-email-error');
+                          clearError('register-password-error');
+                          clearError('register-confirm-password-error');
                 
                 const name = document.getElementById('register-name').value.trim();
                 const email = document.getElementById('register-email').value.trim();
                 const password = document.getElementById('register-password').value;
                 const confirmPassword = document.getElementById('register-confirm-password').value;
                 
-                // Reset error messages
-                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-                
-                // Validate form
-                const errors = [];
-                
-                // Validate name
-                if (!name) {
-                    errors.push({ field: 'name', message: 'Name is required' });
-                }
-                
-                // Validate email
-                if (!email) {
-                    errors.push({ field: 'email', message: 'Email is required' });
-                } else if (!/\S+@\S+\.\S+/.test(email)) {
-                    errors.push({ field: 'email', message: 'Please enter a valid email address' });
-                }
-                
-                // Validate password
-                if (!password) {
-                    errors.push({ field: 'password', message: 'Password is required' });
-                } else if (password.length < 8) {
-                    errors.push({ field: 'password', message: 'Password must be at least 8 characters long' });
-                }
-                
-                // Validate confirm password
-                if (password !== confirmPassword) {
-                    errors.push({ field: 'confirmPassword', message: 'Passwords do not match' });
-                }
-                
-                if (errors.length > 0) {
-                    errors.forEach(error => {
-                        const errorField = document.getElementById(`register-${error.field}-error`);
-                        if (errorField) {
-                            errorField.textContent = error.message;
-                            errorField.style.display = 'block';
-                        }
-                    });
-                    return;
-                }
-                
-                // Show loading state
-                const submitBtn = registerForm.querySelector('button[type="submit"]');
+                          let isValid = true;
+                          if (!name) { displayError('register-name-error', 'Name is required'); isValid = false; }
+                          if (!email || !/\S+@\S+\.\S+/.test(email)) { displayError('register-email-error', 'Please enter a valid email address'); isValid = false; }
+                          if (!password || password.length < 6) { displayError('register-password-error', 'Password must be at least 6 characters.'); isValid = false; }
+                          if (password !== confirmPassword) { displayError('register-confirm-password-error', 'Passwords do not match'); isValid = false; }
+                          if (!isValid) return;
+                          
+                          const submitBtn = this.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
                 
                 try {
-                    // Wait for authService to be ready
-                    if (typeof authService === 'undefined') {
-                        await new Promise((resolve, reject) => {
-                            const checkAuthService = setInterval(() => {
-                                if (typeof authService !== 'undefined') {
-                                    clearInterval(checkAuthService);
-                                    resolve();
-                                }
-                            }, 100);
-                            
-                            // Timeout after 10 seconds
-                            setTimeout(() => {
-                                clearInterval(checkAuthService);
-                                reject(new Error('Authentication service is not available. Please refresh the page.'));
-                            }, 10000);
-                        });
-                    }
-                    
-                    // Call Firebase authentication
-                    const { success, error, user } = await authService.register(email, password, { name });
+                              const { success, error } = await window.authService.register(email, password, { name });
                     
                     if (!success) {
-                        throw new Error(error || 'Registration failed. Please try again.');
-                    }
-                    
-                    // Send email verification
-                    await user.sendEmailVerification();
-                    
-                    // Show success message
-                    const successMsg = document.createElement('div');
-                    successMsg.className = 'alert alert-success';
-                    successMsg.textContent = 'Registration successful! Please check your email to verify your account.';
-                    registerForm.insertBefore(successMsg, registerForm.firstChild);
-                    
-                    // Reset form
+                                  displayError('register-email-error', error || 'Registration failed.');
+                                  return;
+                              }
+                              
+                              // Show success message and redirect
+                              const successMessage = document.getElementById('success-message');
+                              if (successMessage) {
+                                  successMessage.style.display = 'block';
                     registerForm.reset();
-                    
-                    // Switch to login tab after a short delay
                     setTimeout(() => {
-                        switchTab('login');
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('Registration error:', error);
-                    
-                    // Handle specific error cases
-                    let errorMessage = error.message || 'An error occurred during registration';
-                    
-                    // Firebase Auth error codes
-                    if (error.code) {
-                        switch (error.code) {
-                            case 'auth/email-already-in-use':
-                                errorMessage = 'An account already exists with this email address.';
-                                break;
-                            case 'auth/weak-password':
-                                errorMessage = 'The password is too weak. Please use a stronger password.';
-                                break;
-                            case 'auth/operation-not-allowed':
-                                errorMessage = 'Email/password accounts are not enabled for this project.';
-                                break;
-                            case 'auth/network-request-failed':
-                                errorMessage = 'Network error. Please check your internet connection and try again.';
-                                break;
-                        }
-                    }
-                    
-                    // Show error message
-                    const errorElement = document.getElementById('register-error');
-                    if (errorElement) {
-                        errorElement.textContent = errorMessage;
-                        errorElement.style.display = 'block';
-                    }
+                                      successMessage.style.display = 'none';
+                                      // Switch to login tab after successful registration
+                                      const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+                                      if (loginTab) {
+                                          loginTab.click();
+                                      }
+                                  }, 2000);
+                              }
+                              
+                          } catch (error) {
+                              console.error('Registration error:', error);
+                              displayError('register-email-error', error.message || 'An unexpected error occurred.');
                 } finally {
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                 }
             });
-            
-            // Social login handlers
-            async function handleSocialLogin() {
-                try {
-                    // Check if authService is available
-                    if (typeof authService === 'undefined') {
-                        throw new Error('Authentication service is not available');
-                    }
-
-                    // Get provider type from button
-                    const provider = this.getAttribute('data-provider');
-                    
-                    // Handle different providers
-                    switch (provider) {
-                        case 'google':
-                            await authService.signInWithGoogle();
-                            break;
-                        case 'apple':
-                            await authService.signInWithApple();
-                            break;
-                        default:
-                            throw new Error('Unsupported social login provider');
-                    }
-
-                    // Check for redirect URL
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const redirectUrl = urlParams.get('redirect') || '/';
-                    
-                    // Redirect after successful login
-                    window.location.href = redirectUrl;
-                    
-                } catch (error) {
-                    console.error('Social login error:', error);
-                    showError('login-error', error.message || 'Social login failed. Please try again.');
-                }
-            }
-
-            // Add event listeners to social login buttons
-            document.querySelectorAll('.btn-social').forEach(button => {
-                button.addEventListener('click', handleSocialLogin);
-            });
-            
-            // Check if redirected from checkout
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('redirect') === 'checkout') {
-                // Show a message or highlight the login form
-                console.log('Redirected from checkout');
+                  }
+                  
+                  console.log('Login page fully initialized with all functionality');
+              }
+      
+              // ===== INITIALIZATION LOGIC =====
+              // Wait for DOM to be ready
+              document.addEventListener('DOMContentLoaded', function() {
+                  console.log('DOM loaded, checking Firebase services...');
+                  
+                  // Check if services are already initialized
+                  if (window.authService && window.authService.auth) {
+                      console.log('Services already available, initializing immediately');
+                      initializeLoginPage();
+                  } else {
+                      console.log('Services not ready, waiting for initialization...');
+                      
+                      // Try to initialize services if the function is available
+                      if (typeof window.initializeServices === 'function') {
+                          window.initializeServices().then(() => {
+                              console.log('Firebase services initialized, setting up login page');
+                              initializeLoginPage();
+                          }).catch(error => {
+                              console.error('Failed to initialize Firebase services:', error);
+                              alert('Failed to initialize authentication services. Please refresh the page.');
+                          });
+                      } else {
+                          // Wait for the firebaseServicesReady event
+                          document.addEventListener('firebaseServicesReady', function() {
+                              console.log('Firebase services ready, initializing login page');
+                              initializeLoginPage();
+                          });
+                          
+                          // Fallback: try to initialize after a delay
+                          setTimeout(() => {
+                              if (window.authService && window.authService.auth) {
+                                  console.log('Fallback initialization');
+                                  initializeLoginPage();
+                              } else {
+                                  console.error('Firebase services not available after timeout');
+                                  alert('Authentication services not available. Please refresh the page.');
+                              }
+                          }, 3000);
+                      }
             }
         });
     </script>

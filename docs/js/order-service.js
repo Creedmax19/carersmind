@@ -87,6 +87,27 @@ class OrderService {
     }
 
     /**
+     * Get all orders for admin dashboard
+     * @returns {Promise<Array>} - Array of all orders
+     */
+    async getAllOrders() {
+        try {
+            const snapshot = await this.db
+                .collection('orders')
+                .orderBy('createdAt', 'desc')
+                .get();
+            
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error('Error getting all orders:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Get order by ID
      * @param {string} orderId - Order ID
      * @returns {Promise<Object>} - Order data

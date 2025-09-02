@@ -1,57 +1,41 @@
-const supabase = require('../config/supabaseClient');
+const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
 
-// Protect routes
+// Middleware to protect routes using Firebase Auth
 exports.protect = async (req, res, next) => {
   let token;
-
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization.startsWith('Bearer ')
   ) {
-    // Set token from Bearer token in header
     token = req.headers.authorization.split(' ')[1];
-  }
-  // Set token from cookie
-  else if (req.cookies.token) {
+  } else if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }
-
   if (!token) {
     return res.status(401).json({ success: false, error: 'Not authorized, no token' });
   }
-
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
-      return res.status(401).json({ success: false, error: 'Not authorized, token failed' });
+    const decoded = await admin.auth().verifyIdToken(token);
+    const db = getFirestore();
+    const userDoc = await db.collection('users').doc(decoded.uid).get();
+    if (!userDoc.exists) {
+      return res.status(401).json({ success: false, error: 'User profile not found' });
     }
-
-    req.user = user;
+    req.user = { uid: decoded.uid, ...userDoc.data() };
     next();
   } catch (error) {
-    res.status(401).json({ success: false, error: 'Not authorized, token failed' });
+    return res.status(401).json({ success: false, error: 'Not authorized, token failed' });
   }
 };
 
-// Grant access to specific roles
+// Middleware for role-based access
 exports.authorize = (...roles) => {
-  return async (req, res, next) => {
-    // req.user is from the 'protect' middleware
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', req.user.id)
-      .single();
-
-    if (error || !profile) {
-        return res.status(401).json({ success: false, error: 'User profile not found.' });
-    }
-
-    if (!roles.includes(profile.role)) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        error: `User role '${profile.role}' is not authorized to access this route.`
+        error: `User role '${req.user ? req.user.role : 'unknown'}' is not authorized to access this route.`
       });
     }
     next();

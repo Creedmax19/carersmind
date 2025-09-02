@@ -47,17 +47,31 @@ function initializeServices() {
             // Get Firebase services
             const auth = firebase.auth();
             const db = firebase.firestore();
-            const storage = firebase.storage();
+            
+            // Make storage optional - only initialize if available
+            let storage = null;
+            try {
+                if (typeof firebase.storage === 'function') {
+                    storage = firebase.storage();
+                    console.log('Firebase Storage initialized');
+                } else {
+                    console.warn('Firebase Storage not available, skipping storage initialization');
+                }
+            } catch (error) {
+                console.warn('Failed to initialize Firebase Storage:', error);
+            }
 
-            // Check if services are available
-            if (!auth || !db || !storage) {
-                throw new Error('Failed to get required Firebase services');
+            // Check if required services are available
+            if (!auth || !db) {
+                throw new Error('Failed to get required Firebase services (auth, firestore)');
             }
 
             // Make core Firebase services available globally
             window.firebaseAuth = auth;
             window.firestore = db;
-            window.firebaseStorage = storage;
+            if (storage) {
+                window.firebaseStorage = storage;
+            }
 
             // Initialize auth service
             if (typeof FirebaseAuthService === 'function' && !window.authService) {
@@ -102,7 +116,7 @@ function initializeServices() {
                 detail: {
                     auth: window.authService,
                     db: db,
-                    storage: storage
+                    storage: storage || null
                 }
             });
             document.dispatchEvent(event);
@@ -115,3 +129,15 @@ function initializeServices() {
         }
     });
 }
+
+// Auto-initialize when the script loads
+if (document.readyState === 'loading') {
+    // DOM is still loading, wait for it
+    document.addEventListener('DOMContentLoaded', initializeServices);
+} else {
+    // DOM is already loaded, initialize immediately
+    initializeServices();
+}
+
+// Also make it available globally for manual initialization
+window.initializeServices = initializeServices;
